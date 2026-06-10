@@ -1,0 +1,13 @@
+operator,technology,q3_2025,q4_2025,net_addition
+Econet,2G,2903,2981,78
+Econet,3G,1919,1997,78
+Econet,LTE,1747,1825,78
+Econet,5G,298,340,42
+NetOne,2G,1459,1449,-10
+NetOne,3G,1600,1620,20
+NetOne,LTE,1654,1743,89
+NetOne,5G,21,26,5
+Telecel,2G,671,671,0
+Telecel,3G,435,435,0
+Telecel,LTE,17,17,0
+Telecel,5G,0,0,0

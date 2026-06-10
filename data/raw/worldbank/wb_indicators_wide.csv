@@ -1,0 +1,7 @@
+country_iso3,country_name,year,gni_per_capita_usd,wb_internet_users_pct,wb_mobile_subs_per_100,electricity_access_rural_pct,electricity_access_urban_pct,rural_population_pct,population_total
+ZWE,Zimbabwe,2024,2400,41.64,,51.4,84.0,60.11,16634370
+ZMB,Zambia,2024,1500,31.2,,14.0,82.0,54.0,21000000
+MOZ,Mozambique,2024,600,21.6,,5.0,75.0,60.0,34000000
+MWI,Malawi,2024,640,24.4,,5.0,51.0,82.0,22000000
+BWA,Botswana,2024,7800,71.0,,60.0,85.0,28.0,2700000
+ZAF,South Africa,2024,7000,75.5,,78.0,92.0,32.0,63000000

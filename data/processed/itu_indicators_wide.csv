@@ -1,0 +1,7 @@
+country_iso3,country_name,pop_covered_4g_pct,pop_covered_4g_pct_year,pop_covered_2g_pct,pop_covered_2g_pct_year,pop_covered_5g_pct,pop_covered_5g_pct_year,mobile_subs_total,mobile_subs_total_year,mobile_subs_per_100,mobile_subs_per_100_year,basket_data_voice_low_pct_gni,basket_data_voice_high_pct_gni,basket_data_only_pct_gni,basket_fixed_bb_pct_gni,intl_bandwidth_mbps,intl_bandwidth_mbps_year,intl_bandwidth_per_user,intl_bandwidth_per_user_year,year
+ZWE,Zimbabwe,51.6,2024,93.85,2024,15.9,2024,6.31,2025,94.2451753366358,2024,3.15,9.05,12.92,12.8,367447.0,2023,58517.9782710155,2023,2024
+ZMB,Zambia,91.2,2024,97.1,2024,5.0,2024,10.02,2025,108.704779873813,2024,3.01,4.76,3.18,3.97,262936.01,2023,12687.5339733492,2023,2024
+MOZ,Mozambique,84.0,2024,88.0,2024,10.0,2024,7.01,2025,49.5047696961223,2024,5.75,8.5,6.4,44.21,78503.0,2022,2403.91991167631,2022,2024
+MWI,Malawi,88.89,2024,90.0,2024,0.0,2024,10.9,2025,69.260530662121,2024,7.7,11.54,8.45,21.11,112906.86,2023,29741.3211017104,2023,2024
+BWA,Botswana,93.0,2024,99.0,2024,47.0,2024,28.9,2025,163.999922257361,2024,1.76,2.81,1.38,7.93,638610.0,2022,261736.994916168,2022,2024
+ZAF,South Africa,99.41,2024,99.9,2024,50.5,2024,13.5,2025,179.336329840585,2024,1.11,3.71,1.27,3.36,1965294.0,2023,41092.6103426322,2023,2024

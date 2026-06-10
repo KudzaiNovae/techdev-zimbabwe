@@ -1,0 +1,43 @@
+district_code,district_name,population,female_pop,male_pop,female_pct,urban_rural,province_code,province
+ZW_402,Hurungwe,413948,208254,205694,50.3,rural,4,Mashonaland West
+ZW_302,Goromonzi,413135,213298,199868,51.6,rural,3,Mashonaland East
+ZW_103,Chipinge,403103,215738,187364,53.5,rural,1,Manicaland
+ZW_105,Mutare,329061,171211,157851,52.0,rural,1,Manicaland
+ZW_204,Mazowe,311748,156867,154881,50.3,rural,2,Mashonaland Central
+ZW_104,Makoni,310339,158926,151413,51.2,rural,1,Manicaland
+ZW_101,Buhera,291831,157032,134799,53.8,rural,1,Manicaland
+ZW_205,Mount Darwin,255441,130416,125025,51.1,rural,2,Mashonaland Central
+ZW_121,Mutare Urban,243765,127808,115956,52.4,urban,1,Manicaland
+ZW_405,Makonde,222421,110178,112243,49.5,rural,4,Mashonaland West
+ZW_306,Murehwa,219550,115576,103978,52.6,rural,3,Mashonaland East
+ZW_308,Seke,214195,110119,104065,51.4,rural,3,Mashonaland East
+ZW_106,Mutasa,212907,111661,101247,52.4,rural,1,Manicaland
+ZW_401,Chegutu,189724,95071,94652,50.1,rural,4,Mashonaland West
+ZW_201,Bindura,180319,91068,89251,50.5,rural,2,Mashonaland Central
+ZW_207,Shamva,175773,89694,86080,51.0,rural,2,Mashonaland Central
+ZW_307,Mutoko,171874,89258,82591,51.9,rural,3,Mashonaland East
+ZW_305,Mudzi,169179,87850,81315,51.9,rural,3,Mashonaland East
+ZW_102,Chimanimani,165189,86337,78852,52.3,rural,1,Manicaland
+ZW_203,Guruve,163168,82846,80322,50.8,rural,2,Mashonaland Central
+ZW_107,Nyanga,157246,81456,75790,51.8,rural,1,Manicaland
+ZW_403,Mhondoro-Ngezi,149356,73772,75584,49.4,rural,4,Mashonaland West
+ZW_304,Marondera,145728,72904,72837,50.0,rural,3,Mashonaland East
+ZW_202,Centenary/ Muzarabani,142431,71833,70598,50.4,rural,2,Mashonaland Central
+ZW_301,Chikomba,132617,69677,62929,52.5,rural,3,Mashonaland East
+ZW_309,Uzumba Maramba Pfungwe,132601,68787,63798,51.9,rural,3,Mashonaland East
+ZW_422,Kadoma Urban,124551,65643,58907,52.7,urban,4,Mashonaland West
+ZW_421,Chinhoyi,109963,58744,51219,53.4,urban,4,Mashonaland West
+ZW_322,Ruwa,100953,53315,47669,52.8,urban,3,Mashonaland East
+ZW_425,Norton,92545,49081,43465,53.0,urban,4,Mashonaland West
+ZW_208,Mbire,88889,45381,43508,51.1,rural,2,Mashonaland Central
+ZW_206,Rushinga,81657,42375,39282,51.9,rural,2,Mashonaland Central
+ZW_303,Hwedza,80148,41209,38932,51.4,rural,3,Mashonaland East
+ZW_321,Marondera Urban,71051,38082,32979,53.6,urban,3,Mashonaland East
+ZW_423,Chegutu Urban,70276,37120,33156,52.8,urban,4,Mashonaland West
+ZW_221,Bindura Urban,54653,28445,26208,52.0,urban,2,Mashonaland Central
+ZW_404,Kariba,48450,24693,23756,51.0,rural,4,Mashonaland West
+ZW_122,Rusape,41022,21882,19140,53.3,urban,1,Manicaland
+ZW_426,Karoi,39830,21491,18339,54.0,urban,4,Mashonaland West
+ZW_123,Chipinge Urban,37786,20576,17210,54.5,urban,1,Manicaland
+ZW_424,Kariba Urban,29668,15144,14524,51.0,urban,4,Mashonaland West
+ZW_222,Mvurwi,16650,8767,7883,52.7,urban,2,Mashonaland Central

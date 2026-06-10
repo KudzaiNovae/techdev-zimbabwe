@@ -1,0 +1,7 @@
+country_iso3,country_name,ddi,ddi_rank,pillars_available,coverage_gap_raw,coverage_gap_source,coverage_gap_year,coverage_gap_score,adoption_gap_raw,adoption_gap_source,adoption_gap_year,adoption_gap_score,affordability_gap_raw,affordability_gap_source,affordability_gap_year,affordability_gap_score,electricity_gap_raw,electricity_gap_source,electricity_gap_year,electricity_gap_score
+MWI,Malawi,64.7,1,4,88.89,pop_covered_4g_pct,2024,11.11,24.4,wb_internet_users_pct,2024,75.6,7.7,basket_data_voice_low_pct_gni,2024,77.0,5.0,electricity_access_rural_pct,2024,95.0
+MOZ,Mozambique,61.7,2,4,84.0,pop_covered_4g_pct,2024,16.0,21.6,wb_internet_users_pct,2024,78.4,5.75,basket_data_voice_low_pct_gni,2024,57.5,5.0,electricity_access_rural_pct,2024,95.0
+ZMB,Zambia,48.4,3,4,91.2,pop_covered_4g_pct,2024,8.799999999999997,31.2,wb_internet_users_pct,2024,68.8,3.01,basket_data_voice_low_pct_gni,2024,30.099999999999998,14.0,electricity_access_rural_pct,2024,86.0
+ZWE,Zimbabwe,45.7,4,4,55.68641,pop_covered_4g_pct,2025,44.31359,41.64,wb_internet_users_pct,2024,58.36,3.15,basket_data_voice_low_pct_gni,2024,31.5,51.4,electricity_access_rural_pct,2024,48.6
+BWA,Botswana,23.4,5,4,93.0,pop_covered_4g_pct,2024,7.0,71.0,wb_internet_users_pct,2024,29.0,1.76,basket_data_voice_low_pct_gni,2024,17.6,60.0,electricity_access_rural_pct,2024,40.0
+ZAF,South Africa,14.5,6,4,99.41,pop_covered_4g_pct,2024,0.5900000000000034,75.5,wb_internet_users_pct,2024,24.5,1.11,basket_data_voice_low_pct_gni,2024,11.100000000000001,78.0,electricity_access_rural_pct,2024,22.0

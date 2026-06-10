@@ -1,0 +1,28 @@
+district_name,total_towers,towers_2g,towers_3g,towers_4g,econet,netone,telecel,avg_range_m,province,district_population,urban_rural,towers_per_10k
+Harare Urban,1,1,0,0,0,1,0,20817.0,Harare,252997,urban,0.04
+Kariba,2,2,0,0,0,2,0,15472.5,Mashonaland West,253869,rural,0.08
+Marondera,2,0,0,2,0,2,0,1000.0,Mashonaland East,253402,rural,0.08
+Mutare,2,0,0,2,0,2,0,1000.0,Manicaland,253386,rural,0.08
+Centenary,3,0,3,0,0,3,0,1000.0,Mashonaland Central,254468,rural,0.12
+Mangwe,5,2,3,0,0,5,0,3079.0,Matabeleland South,247743,rural,0.2
+Chivi,5,5,0,0,0,5,0,1000.0,Masvingo,249034,rural,0.2
+Bubi,6,6,0,0,0,6,0,4109.666666666667,Matabeleland North,251138,rural,0.24
+Zvishavane,6,6,0,0,0,6,0,6117.666666666667,Midlands,251559,rural,0.24
+Hwange,6,6,0,0,0,6,0,6618.5,Matabeleland North,251629,urban,0.24
+Bulawayo,9,9,0,0,0,9,0,18551.666666666668,Bulawayo,248710,urban,0.36
+Masvingo,11,7,4,0,0,11,0,10673.09090909091,Masvingo,249595,urban,0.44
+Mhondoro-Ngezi,12,12,0,0,0,12,0,5637.5,Mashonaland West,254338,rural,0.47
+Sanyati,13,13,0,0,0,13,0,10745.153846153846,Mashonaland West,254663,rural,0.51
+Matobo,17,9,8,0,0,17,0,7158.176470588235,Matabeleland South,247827,rural,0.69
+Mazowe,18,0,18,0,0,18,0,2099.0,Mashonaland Central,254935,rural,0.71
+Chirumhanzu,18,9,9,0,0,18,0,11641.222222222223,Midlands,249880,rural,0.72
+Zaka,19,16,3,0,0,19,0,11488.526315789473,Masvingo,250148,rural,0.76
+Chitungwiza,20,10,10,0,0,20,0,5641.65,Harare,253187,urban,0.79
+Gokwe North,21,9,11,1,0,21,0,9346.0,Midlands,249981,rural,0.84
+Mwenezi,40,12,28,0,0,40,0,6133.3,Masvingo,249768,rural,1.6
+Chiredzi,49,14,35,0,0,49,0,5950.142857142857,Masvingo,248633,rural,1.97
+Gutu,76,17,59,0,5,71,0,6719.065789473684,Masvingo,249205,rural,3.05
+Epworth,121,54,67,0,0,121,0,4212.123966942148,Harare,253492,urban,4.77
+Mudzi,133,37,96,0,0,133,0,1724.6992481203008,Mashonaland East,253439,rural,5.25
+Seke,142,69,73,0,0,142,0,4061.5985915492956,Mashonaland East,253937,rural,5.59
+Harare Rural,3263,1584,1658,21,1,3240,21,1699.906221268771,Harare,253683,rural,128.63

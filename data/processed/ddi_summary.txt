@@ -1,0 +1,60 @@
+========================================================================
+DIGITAL DESERT INDEX - Country comparison (higher = worse)
+========================================================================
+
+Rank Country               DDI   Coverage  Adoption  Afford.   Power
+------------------------------------------------------------------------
+1    Malawi               64.7      11.1      75.6     77.0    95.0
+2    Mozambique           61.7      16.0      78.4     57.5    95.0
+3    Zambia               48.4       8.8      68.8     30.1    86.0
+4    Zimbabwe             45.7      44.3      58.4     31.5    48.6
+5    Botswana             23.4       7.0      29.0     17.6    40.0
+6    South Africa         14.5       0.6      24.5     11.1    22.0
+
+Pillars (each 0-100, higher = worse gap):
+  - coverage_gap: Population NOT covered by at least 4G (or proxy: not using internet)
+  - adoption_gap: Population NOT using the internet
+  - affordability_gap: Mobile data+voice basket as % of GNI per capita, scaled (2% -> 20, >=10% -> 100)
+  - electricity_gap: Rural population WITHOUT electricity access
+
+DDI = unweighted mean of available pillars.
+
+========================================================================
+Per-country detail
+========================================================================
+
+  Malawi (MWI)  -  DDI 64.7  (rank 1)
+    coverage_gap           raw=88.89  score=11.1  (source: pop_covered_4g_pct, 2024)
+    adoption_gap           raw=24.40  score=75.6  (source: wb_internet_users_pct, 2024)
+    affordability_gap      raw=7.70  score=77.0  (source: basket_data_voice_low_pct_gni, 2024)
+    electricity_gap        raw=5.00  score=95.0  (source: electricity_access_rural_pct, 2024)
+
+  Mozambique (MOZ)  -  DDI 61.7  (rank 2)
+    coverage_gap           raw=84.00  score=16.0  (source: pop_covered_4g_pct, 2024)
+    adoption_gap           raw=21.60  score=78.4  (source: wb_internet_users_pct, 2024)
+    affordability_gap      raw=5.75  score=57.5  (source: basket_data_voice_low_pct_gni, 2024)
+    electricity_gap        raw=5.00  score=95.0  (source: electricity_access_rural_pct, 2024)
+
+  Zambia (ZMB)  -  DDI 48.4  (rank 3)
+    coverage_gap           raw=91.20  score=8.8  (source: pop_covered_4g_pct, 2024)
+    adoption_gap           raw=31.20  score=68.8  (source: wb_internet_users_pct, 2024)
+    affordability_gap      raw=3.01  score=30.1  (source: basket_data_voice_low_pct_gni, 2024)
+    electricity_gap        raw=14.00  score=86.0  (source: electricity_access_rural_pct, 2024)
+
+  Zimbabwe (ZWE)  -  DDI 45.7  (rank 4)
+    coverage_gap           raw=55.69  score=44.3  (source: pop_covered_4g_pct, 2025)
+    adoption_gap           raw=41.64  score=58.4  (source: wb_internet_users_pct, 2024)
+    affordability_gap      raw=3.15  score=31.5  (source: basket_data_voice_low_pct_gni, 2024)
+    electricity_gap        raw=51.40  score=48.6  (source: electricity_access_rural_pct, 2024)
+
+  Botswana (BWA)  -  DDI 23.4  (rank 5)
+    coverage_gap           raw=93.00  score=7.0  (source: pop_covered_4g_pct, 2024)
+    adoption_gap           raw=71.00  score=29.0  (source: wb_internet_users_pct, 2024)
+    affordability_gap      raw=1.76  score=17.6  (source: basket_data_voice_low_pct_gni, 2024)
+    electricity_gap        raw=60.00  score=40.0  (source: electricity_access_rural_pct, 2024)
+
+  South Africa (ZAF)  -  DDI 14.5  (rank 6)
+    coverage_gap           raw=99.41  score=0.6  (source: pop_covered_4g_pct, 2024)
+    adoption_gap           raw=75.50  score=24.5  (source: wb_internet_users_pct, 2024)
+    affordability_gap      raw=1.11  score=11.1  (source: basket_data_voice_low_pct_gni, 2024)
+    electricity_gap        raw=78.00  score=22.0  (source: electricity_access_rural_pct, 2024)

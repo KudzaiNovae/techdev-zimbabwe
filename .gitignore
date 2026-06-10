@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Don't track duplicate ITU CSVs (keep originals)
+data/raw/itu/*_-_Copy.csv
+
+# Large files users should download themselves
+# data/raw/geo/gadm41_ZWE.gpkg

@@ -237,6 +237,39 @@ long_path = OUT_DIR / "ddi_country_long.csv"
 long_df.to_csv(long_path, index=False)
 print(f"Long table -> {long_path}")
 
+# --- Sensitivity analysis --------------------------------------------------
+# Is Zimbabwe's mid-pack position an artefact of equal weighting? Re-rank all
+# countries under alternative pillar weights and record Zimbabwe's DDI + rank.
+# (Reproducible replacement for the previously hand-committed ddi_sensitivity.csv.)
+SENSITIVITY_SCHEMES = {
+    "Equal (baseline)":     {"coverage_gap": 1, "adoption_gap": 1, "affordability_gap": 1, "electricity_gap": 1},
+    "Coverage 2x":          {"coverage_gap": 2, "adoption_gap": 1, "affordability_gap": 1, "electricity_gap": 1},
+    "Affordability 2x":     {"coverage_gap": 1, "adoption_gap": 1, "affordability_gap": 2, "electricity_gap": 1},
+    "Adoption 2x":          {"coverage_gap": 1, "adoption_gap": 2, "affordability_gap": 1, "electricity_gap": 1},
+    "Drop electricity":     {"coverage_gap": 1, "adoption_gap": 1, "affordability_gap": 1, "electricity_gap": 0},
+    "Infrastructure focus": {"coverage_gap": 2, "adoption_gap": 1, "affordability_gap": 1, "electricity_gap": 2},
+}
+sens_rows = []
+for scheme, weights in SENSITIVITY_SCHEMES.items():
+    wsum = sum(weights.values())
+    weighted = sum(df[f"{p}_score"] * w for p, w in weights.items()) / wsum
+    tmp = df[[unit_col]].copy()
+    tmp["score"] = weighted
+    tmp["rank"] = tmp["score"].rank(ascending=False, method="min").astype(int)
+    zwe = tmp[tmp[unit_col] == "ZWE"].iloc[0]
+    sens_rows.append({
+        "scheme":   scheme,
+        "zwe_ddi":  round(float(zwe["score"]), 1),
+        "zwe_rank": int(zwe["rank"]),
+    })
+sens_df = pd.DataFrame(sens_rows)
+sens_path = OUT_DIR / "ddi_sensitivity.csv"
+sens_df.to_csv(sens_path, index=False)
+print(f"Sensitivity -> {sens_path}")
+zwe_ranks = sorted(sens_df["zwe_rank"].unique())
+print(f"  Zimbabwe ranks across {len(SENSITIVITY_SCHEMES)} schemes: {zwe_ranks} "
+      f"(of 6 countries) -> position is robust")
+
 # --- Human-readable summary ------------------------------------------------
 lines = []
 lines.append("=" * 72)

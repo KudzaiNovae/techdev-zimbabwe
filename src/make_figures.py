@@ -28,14 +28,14 @@ IN_DIR  = Path("data/processed")
 OUT_DIR = Path("outputs/figures")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Grayscale palette for black-and-white print.
-ZIM_COLOR  = "#000000"   # Zimbabwe highlighted in solid black
-PEER_COLOR = "#9e9e9e"   # Peers in light grey
+# PowerPoint deck theme palette (navy primary, red accent).
+ZIM_COLOR  = "#C00000"   # Zimbabwe highlighted in accent red
+PEER_COLOR = "#1F4E79"   # Peers in deck navy
 PILLAR_COLORS = {
-    "coverage_gap":      "#1a1a1a",   # near-black
-    "adoption_gap":      "#595959",   # dark grey
-    "affordability_gap": "#8c8c8c",   # mid grey
-    "electricity_gap":   "#c4c4c4",   # light grey
+    "coverage_gap":      "#C00000",   # accent red
+    "adoption_gap":      "#1F4E79",   # deck navy
+    "affordability_gap": "#FFC000",   # gold
+    "electricity_gap":   "#8FAADC",   # ice blue
 }
 PILLAR_LABELS = {
     "coverage_gap":      "Coverage gap",
@@ -62,8 +62,8 @@ for bar, val in zip(bars, plot_df["ddi"]):
     ax.text(val + 1, bar.get_y() + bar.get_height() / 2,
             f"{val:.0f}", va="center", fontsize=10)
 
-ax.set_xlabel("Digital Desert Index (0–100, higher = more excluded)")
-ax.set_title("Digital Desert Index — Zimbabwe vs SADC peers", fontsize=13, fontweight="bold", pad=12)
+ax.set_xlabel("Digital Desert Index (0 to 100, higher = more excluded)")
+ax.set_title("Digital Desert Index: Zimbabwe vs SADC peers", fontsize=13, fontweight="bold", pad=12)
 ax.set_xlim(0, max(plot_df["ddi"]) * 1.15)
 ax.spines[["top", "right"]].set_visible(False)
 ax.grid(axis="x", alpha=0.3)
@@ -101,8 +101,8 @@ for i, pillar in enumerate(pillars):
 
 ax.set_xticks(x)
 ax.set_xticklabels(country_names, rotation=0, fontsize=10)
-ax.set_ylabel("Pillar score (0–100, higher = worse)")
-ax.set_title("DDI pillar breakdown — what's driving each country's score",
+ax.set_ylabel("Pillar score (0 to 100, higher = worse)")
+ax.set_title("DDI pillar breakdown: what's driving each country's score",
              fontsize=13, fontweight="bold", pad=12)
 ax.set_ylim(0, 100)
 ax.legend(loc="upper right", frameon=False, ncol=2)

@@ -72,13 +72,6 @@ districts.plot(
 provs = districts.dissolve(by="province")
 provs.boundary.plot(ax=ax, color="#333333", linewidth=0.9)
 
-# Annotate worst districts
-worst = districts.sort_values("ddi", ascending=False).head(5)
-for _, r in worst.iterrows():
-    pt = r["geometry"].representative_point()
-    ax.annotate(r["district_name"], xy=(pt.x, pt.y),
-                fontsize=7, ha="center", va="center", color="white", weight="bold")
-
 ax.set_title("Zimbabwe — Digital Desert Index by district\n"
              "Pilot version using urban/rural classification + national indicators",
              fontsize=13, fontweight="bold", pad=12)

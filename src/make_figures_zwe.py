@@ -22,10 +22,10 @@ IN_DIR  = Path("data/processed")
 OUT_DIR = Path("outputs/figures")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Grayscale palette for black-and-white print: urban dark, rural medium.
-URBAN_COLOR = "#3a3a3a"
-RURAL_COLOR = "#8c8c8c"
-ACCENT      = "#7F7F7F"
+# PowerPoint deck theme palette: urban navy, rural accent red.
+URBAN_COLOR = "#1F4E79"
+RURAL_COLOR = "#C00000"
+ACCENT      = "#C00000"
 
 
 # === Figure 1: Rural vs Urban population coverage by technology ============
@@ -59,7 +59,7 @@ ax.set_xticks(x)
 ax.set_xticklabels(techs, fontsize=11)
 ax.set_ylabel("Population coverage (%)")
 ax.set_ylim(0, 115)
-ax.set_title("Zimbabwe — population coverage by technology, rural vs urban\n"
+ax.set_title("Zimbabwe population coverage by technology: rural vs urban\n"
              "(POTRAZ Q4 2025)", fontsize=13, fontweight="bold", pad=12)
 ax.legend(loc="upper right", frameon=False)
 ax.spines[["top", "right"]].set_visible(False)
@@ -98,7 +98,7 @@ for i, (u, r) in enumerate(zip(urban, rural)):
 ax.set_xticks(x)
 ax.set_xticklabels(operators, fontsize=11)
 ax.set_ylabel("Number of base stations")
-ax.set_title("Zimbabwe — mobile base stations by operator and area\n"
+ax.set_title("Zimbabwe mobile base stations by operator and area\n"
              "(POTRAZ Q4 2025: 64% of all base stations are in urban areas)",
              fontsize=13, fontweight="bold", pad=12)
 ax.legend(loc="upper right", frameon=False)
@@ -122,13 +122,14 @@ tech_no_total = tech[tech["technology"] != "Total"].copy()
 tech_no_total = tech_no_total.sort_values("change_pct", ascending=True)
 
 fig, ax = plt.subplots(figsize=(10, 5.5))
-colors = ["#bdbdbd" if c < 0 else "#3a3a3a" for c in tech_no_total["change_pct"]]
-# Highlight Starlink/VSAT in solid black so it stands out in B&W
+colors = ["#BDD7EE" if c < 0 else "#1F4E79" for c in tech_no_total["change_pct"]]
+# Highlight Starlink/VSAT in accent red so it stands out
 labels = tech_no_total["technology"].tolist()
-colors = ["#000000" if "VSAT" in t or "Starlink" in t else c
+colors = ["#C00000" if "VSAT" in t or "Starlink" in t else c
           for t, c in zip(labels, colors)]
 
 bars = ax.barh(labels, tech_no_total["change_pct"], color=colors, edgecolor="black")
+ax.set_xlim(min(tech_no_total["change_pct"]) - 8, max(tech_no_total["change_pct"]) + 8)
 for bar, val in zip(bars, tech_no_total["change_pct"]):
     offset = 1 if val >= 0 else -1
     ha = "left" if val >= 0 else "right"
@@ -136,8 +137,8 @@ for bar, val in zip(bars, tech_no_total["change_pct"]):
             f"{val:+.1f}%", va="center", ha=ha, fontsize=10)
 
 ax.axvline(0, color="black", linewidth=0.8)
-ax.set_xlabel("Quarter-on-quarter change (%) — Q3 2025 to Q4 2025")
-ax.set_title("Zimbabwe internet subscriptions by technology — who's growing\n"
+ax.set_xlabel("Quarter-on-quarter change (%), Q3 2025 to Q4 2025")
+ax.set_title("Zimbabwe internet subscriptions by technology: who's growing\n"
              "(Starlink VSAT +31.6% is the fastest-growing technology)",
              fontsize=13, fontweight="bold", pad=12)
 ax.spines[["top", "right"]].set_visible(False)
@@ -145,7 +146,7 @@ ax.grid(axis="x", alpha=0.3)
 
 fig.text(0.02, -0.02,
          "Source: POTRAZ Q4 2025. Starlink fills coverage gaps where terrestrial networks "
-         "don't reach — a critical interim measure for digital deserts.",
+         "don't reach. A critical interim measure for digital deserts.",
          fontsize=8, color="#555555")
 
 fig.tight_layout()

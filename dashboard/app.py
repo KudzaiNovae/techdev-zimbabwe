@@ -1,6 +1,6 @@
 """
-TECHDEV-ZIMBABWE: Digital Desert Index Dashboard
-Modern interactive explorer for Zimbabwe's connectivity gaps.
+TECHDEV-ZIMBABWE — Mapping Zimbabwe's Digital Deserts
+A plain-language, presentation-style dashboard of Zimbabwe's connectivity gaps.
 
 Run:
     pip install streamlit plotly
@@ -9,561 +9,404 @@ Run:
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.express as px
 import plotly.graph_objects as go
 from pathlib import Path
 
-# --- Config ---
-st.set_page_config(
-    page_title="Zimbabwe Digital Desert Index",
-    page_icon="🌍",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
+st.set_page_config(page_title="Zimbabwe's Digital Deserts", page_icon="📶",
+                   layout="wide", initial_sidebar_state="expanded")
 
-# --- Modern CSS ---
+# ---------------------------------------------------------------- palette
+NAVY="#1F4E79"; BLUE="#2563EB"; TEAL="#0E7490"; RED="#C00000"
+AMBER="#F59E0B"; GREEN="#059669"; GREY="#94A3B8"; INK="#0F172A"; SLATE="#475569"
+
+# ---------------------------------------------------------------- styling
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
-    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-    
-    .main .block-container { padding-top: 1.5rem; max-width: 1200px; }
-    
-    /* Hide default Streamlit branding */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
-    /* Metric cards */
-    .metric-card {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        border-radius: 12px;
-        padding: 1.2rem 1.5rem;
-        border-left: 4px solid #1F4E79;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        margin-bottom: 0.8rem;
-    }
-    .metric-card.red { border-left-color: #C00000; }
-    .metric-card.green { border-left-color: #059669; }
-    .metric-card.grey { border-left-color: #6B7280; }
-    .metric-label { font-size: 0.78rem; color: #6B7280; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
-    .metric-value { font-size: 1.8rem; font-weight: 700; color: #1E293B; line-height: 1.1; }
-    .metric-value.red { color: #C00000; }
-    .metric-sub { font-size: 0.8rem; color: #94A3B8; margin-top: 0.2rem; }
-    
-    /* Page title */
-    .page-title { font-size: 1.6rem; font-weight: 700; color: #1E293B; margin-bottom: 0.3rem; }
-    .page-subtitle { font-size: 0.95rem; color: #64748B; margin-bottom: 1.5rem; }
-    
-    /* Sidebar styling */
-    [data-testid="stSidebar"] { background: #0F172A; }
-    [data-testid="stSidebar"] .css-1d391kg { padding-top: 1rem; }
-    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] label { color: #CBD5E1 !important; }
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #F1F5F9 !important; }
-    
-    /* Divider */
-    .section-divider { border-top: 1px solid #E2E8F0; margin: 1.5rem 0; }
-    
-    /* Insight box */
-    .insight-box {
-        background: #FEF2F2;
-        border-radius: 8px;
-        padding: 1rem 1.2rem;
-        border-left: 3px solid #C00000;
-        font-size: 0.9rem;
-        color: #7F1D1D;
-        margin: 1rem 0;
-    }
-    .insight-box.blue {
-        background: #EFF6FF;
-        border-left-color: #1F4E79;
-        color: #1E3A5F;
-    }
-    
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] { gap: 0.5rem; }
-    .stTabs [data-baseweb="tab"] { 
-        border-radius: 8px 8px 0 0;
-        padding: 0.5rem 1.2rem;
-        font-weight: 500;
-    }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+html, body, [class*="css"] { font-family:'Inter',sans-serif; }
+.main .block-container { padding-top:1.2rem; max-width:1180px; }
+#MainMenu, footer, header { visibility:hidden; }
+
+.hero { background:linear-gradient(120deg,#1F4E79 0%,#163b5c 55%,#0E7490 100%);
+        border-radius:18px; padding:2rem 2.2rem; color:#fff; margin-bottom:1.4rem; }
+.hero h1 { font-size:2.1rem; font-weight:800; margin:0 0 .4rem 0; line-height:1.1; }
+.hero p  { font-size:1.05rem; opacity:.92; margin:0; max-width:760px; }
+
+.ptitle { font-size:1.55rem; font-weight:800; color:#0F172A; margin:.2rem 0 .15rem; }
+.psub   { font-size:1rem; color:#64748B; margin-bottom:1.1rem; }
+.shead  { font-size:1.12rem; font-weight:700; color:#0F172A; margin:.4rem 0 .2rem; }
+
+.card { background:#fff; border:1px solid #EEF2F7; border-radius:14px;
+        padding:1.05rem 1.25rem; box-shadow:0 1px 4px rgba(15,23,42,.05);
+        border-top:4px solid #1F4E79; height:100%; }
+.card.red{border-top-color:#C00000;} .card.green{border-top-color:#059669;}
+.card.amber{border-top-color:#F59E0B;} .card.grey{border-top-color:#94A3B8;}
+.card .lab{font-size:.72rem;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.card .val{font-size:1.95rem;font-weight:800;color:#0F172A;line-height:1.05;margin-top:.15rem;}
+.card .val.red{color:#C00000;} .card .val.green{color:#059669;}
+.card .sub{font-size:.82rem;color:#94A3B8;margin-top:.25rem;}
+
+.note{border-radius:12px;padding:1rem 1.2rem;font-size:.95rem;margin:.6rem 0 1rem;line-height:1.5;}
+.note.blue {background:#EFF6FF;border-left:4px solid #2563EB;color:#1E3A5F;}
+.note.red  {background:#FEF2F2;border-left:4px solid #C00000;color:#7F1D1D;}
+.note.green{background:#ECFDF5;border-left:4px solid #059669;color:#065F46;}
+.note.amber{background:#FFFBEB;border-left:4px solid #F59E0B;color:#92400E;}
+.divider{border-top:1px solid #EEF2F7;margin:1.3rem 0;}
+[data-testid="stSidebar"]{background:#0F172A;}
+[data-testid="stSidebar"] *{color:#CBD5E1 !important;}
+[data-testid="stSidebar"] h1,[data-testid="stSidebar"] h2,[data-testid="stSidebar"] h3{color:#F8FAFC !important;}
+.stTabs [data-baseweb="tab"]{border-radius:8px 8px 0 0;padding:.45rem 1.1rem;font-weight:600;}
+small.cap{color:#94A3B8;font-size:.82rem;}
 </style>
 """, unsafe_allow_html=True)
 
-NAVY = "#1F4E79"
-RED = "#C00000"
-GREY = "#6B7280"
-LIGHT = "#F1F5F9"
-
-PLOTLY_LAYOUT = dict(
-    font=dict(family="Inter, sans-serif", size=13),
-    plot_bgcolor="rgba(0,0,0,0)",
-    paper_bgcolor="rgba(0,0,0,0)",
-    margin=dict(l=40, r=20, t=40, b=40),
-    xaxis=dict(gridcolor="#E2E8F0", gridwidth=0.5),
-    yaxis=dict(gridcolor="#E2E8F0", gridwidth=0.5),
-)
-
-# --- Data loading ---
+# ---------------------------------------------------------------- data
 @st.cache_data
 def load_data():
     base = Path(__file__).parent.parent
-    data = {}
     files = {
-        'ddi_country': 'data/processed/ddi_country.csv',
-        'districts': 'data/processed/zwe_districts_ddi_census.csv',
-        'coverage': 'data/processed/potraz_q4_2025_coverage.csv',
-        'base_stations': 'data/processed/potraz_q4_2025_base_stations_by_area.csv',
-        'affordability': 'data/processed/itu_affordability_sadc.csv',
-        'zimstat': 'data/processed/zimstat_district_population.csv',
-        'towers': 'data/processed/opencellid_district_towers.csv',
-        'headlines': 'data/processed/potraz_q4_2025_headlines.csv',
-        'sensitivity': 'data/processed/ddi_sensitivity.csv',
+        'ddi':'data/processed/ddi_country.csv',
+        'districts':'data/processed/zwe_districts_ddi_census.csv',
+        'coverage':'data/processed/potraz_q4_2025_coverage.csv',
+        'stations':'data/processed/potraz_q4_2025_base_stations_by_area.csv',
+        'afford':'data/processed/itu_affordability_sadc.csv',
+        'headlines':'data/processed/potraz_q4_2025_headlines.csv',
+        'sens':'data/processed/ddi_sensitivity.csv',
+        'tech':'data/processed/potraz_q4_2025_internet_tech.csv',
+        'subs':'data/processed/potraz_q4_2025_subscriptions.csv',
+        'usage':'data/processed/potraz_q4_2025_data_usage.csv',
     }
-    for key, path in files.items():
-        p = base / path
-        if p.exists():
-            data[key] = pd.read_csv(p)
-    return data
+    return {k:pd.read_csv(base/v) for k,v in files.items() if (base/v).exists()}
 
-data = load_data()
+D = load_data()
 
-def metric_card(label, value, sub="", style=""):
-    return f"""<div class="metric-card {style}">
-        <div class="metric-label">{label}</div>
-        <div class="metric-value {style}">{value}</div>
-        <div class="metric-sub">{sub}</div>
-    </div>"""
+# ---------------------------------------------------------------- helpers
+def card(label, value, sub="", style=""):
+    st.markdown(f"""<div class="card {style}"><div class="lab">{label}</div>
+        <div class="val {style}">{value}</div><div class="sub">{sub}</div></div>""",
+        unsafe_allow_html=True)
 
-# --- Sidebar ---
+def note(text, kind="blue"):
+    st.markdown(f'<div class="note {kind}">{text}</div>', unsafe_allow_html=True)
+
+def title(t, sub=""):
+    st.markdown(f'<div class="ptitle">{t}</div>', unsafe_allow_html=True)
+    if sub: st.markdown(f'<div class="psub">{sub}</div>', unsafe_allow_html=True)
+
+def styled(fig, height=380, t="", yt="", xt="", legend=True, ylim=None, xlim=None):
+    fig.update_layout(font=dict(family="Inter,sans-serif", size=13, color=SLATE),
+        plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=55, r=22, t=52 if t else 14, b=64 if legend else 40), height=height,
+        title=dict(text=t, font=dict(size=15.5, color=INK), x=0, xanchor="left"),
+        showlegend=legend, bargap=0.3,
+        legend=dict(orientation="h", yanchor="bottom", y=-0.22, x=0, font=dict(size=12)))
+    fig.update_xaxes(showgrid=False, title_text=xt, color="#64748B", tickfont=dict(size=12))
+    fig.update_yaxes(showgrid=True, gridcolor="#EEF2F7", title_text=yt, color="#64748B", tickfont=dict(size=12))
+    if ylim: fig.update_yaxes(range=ylim)
+    if xlim: fig.update_xaxes(range=xlim)
+    return fig
+
+def chart(fig): st.plotly_chart(fig, use_container_width=True)
+
+# plain-language names for the four pillars
+PILL = [("coverage_gap","No 4G signal",NAVY),
+        ("adoption_gap","Not online yet",TEAL),
+        ("affordability_gap","Data too costly",RED),
+        ("electricity_gap","No power for towers",AMBER)]
+PILL_C = {"coverage_gap_score":("No 4G signal",NAVY),"adoption_gap_score":("Not online yet",TEAL),
+          "affordability_gap_score":("Data too costly",RED),"electricity_gap_score":("No power for towers",AMBER)}
+
+# ---------------------------------------------------------------- sidebar
 with st.sidebar:
-    st.markdown("### 🌍 TECHDEV-ZIMBABWE")
-    st.caption("ITU Data Hackathon 2026")
+    st.markdown("## 📶 Digital Deserts")
+    st.caption("Mapping Zimbabwe's connectivity gaps · ITU Data Hackathon 2026")
     st.markdown("---")
-    
-    page = st.radio("Navigation", [
-        "Overview",
-        "SADC Comparison",
-        "District Explorer",
-        "Coverage Gap",
-        "Affordability",
-        "Infrastructure",
-        "Methodology",
-        "Policy",
-    ], label_visibility="collapsed")
-    
+    PAGES = ["🏠 The big picture","🌍 Zimbabwe vs neighbours","🏙️ Town vs countryside",
+             "📡 Where the signal reaches","💸 The cost of getting online","🗼 Where the towers are",
+             "🧮 How we measured it","✅ What should happen"]
+    page = st.radio("Navigation", PAGES, label_visibility="collapsed")
     st.markdown("---")
-    st.caption("**Team**")
-    st.caption("Kudzai Zhuwaki (Lead)")
-    st.caption("Dorothy Matembudze")
-    st.caption("Shannon Sikadi")
-    st.caption("Daniel Nkosana Mlandu")
+    st.caption("**Team TECHDEV-ZIMBABWE**")
+    st.caption("Kudzai Zhuwaki · Dorothy Matembudze")
+    st.caption("Shannon Sikadi · Daniel Nkosana Mlandu")
     st.markdown("---")
-    st.caption("Data: ITU DataHub, World Bank, POTRAZ Q4 2025, ZimStat 2022 Census, OpenCellID")
+    st.caption("Sources: ITU DataHub · POTRAZ Q4 2025 · World Bank · ZimStat 2022 Census · OpenCellID")
 
-# === PAGES ===
+# ================================================================ PAGES
+# ---------------------------------------------------------------- 1. Big picture
+if page == PAGES[0]:
+    st.markdown("""<div class="hero"><h1>Zimbabwe looks connected on paper.<br>Millions are still offline.</h1>
+        <p>Official numbers say 8 in 10 Zimbabweans are connected. Look closer and the picture splits in two —
+        a country of well-served cities and a countryside where the signal, the power, and affordable data run out.</p></div>""",
+        unsafe_allow_html=True)
 
-if page == "Overview":
-    st.markdown('<div class="page-title">Mapping Zimbabwe\'s Digital Deserts</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-subtitle">Making digital exclusion visible, measurable, and actionable across 91 districts</div>', unsafe_allow_html=True)
+    c = st.columns(4)
+    with c[0]: card("Say they're connected","84.6%","POTRAZ — mobile subscriptions")
+    with c[1]: card("Actually use the internet","41.6%","World Bank — real users","red")
+    with c[2]: card("Rural areas with 4G","29%","vs 96% in towns","red")
+    with c[3]: card("Zimbabwe's regional rank","#4 of 6","on digital exclusion (SADC)","amber")
 
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        st.markdown(metric_card("POTRAZ Internet Penetration", "84.55%", "Q4 2025 headline figure"), unsafe_allow_html=True)
-    with c2:
-        st.markdown(metric_card("Actually Using Internet", "41.6%", "World Bank 2024", "red"), unsafe_allow_html=True)
-    with c3:
-        st.markdown(metric_card("Rural 4G Coverage", "29.0%", "vs 95.9% urban", "red"), unsafe_allow_html=True)
-    with c4:
-        st.markdown(metric_card("Zimbabwe DDI", "45.7", "Rank 4 of 6 SADC peers"), unsafe_allow_html=True)
-
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-
-    c1, c2 = st.columns([1, 1])
-    with c1:
-        st.markdown("#### The 43-point gap")
-        st.write("POTRAZ counts active data subscriptions. The World Bank counts people. Many Zimbabweans have multiple SIMs, and having a subscription is not the same as being meaningfully connected.")
-        st.write("Behind the national averages lie deep digital deserts where coverage is absent, quality is poor, and data costs over 10% of monthly income.")
-        
-        st.markdown('<div class="insight-box">Zimbabwe faces two problems at once: a <b>supply gap</b> (worst 4G coverage in its SADC peer group) and a <b>demand gap</b> (adoption is even lower than coverage). Building towers is necessary but not sufficient. Closing the divide needs infrastructure <i>and</i> devices, affordability for heavy use, and digital literacy.</div>', unsafe_allow_html=True)
-
-    with c2:
-        if 'districts' in data:
-            df = data['districts']
-            u = df[df['urban_rural'] == 'urban']
-            r = df[df['urban_rural'] == 'rural']
-            
-            fig = go.Figure()
-            fig.add_trace(go.Bar(name="Urban", x=["Population", "DDI Score"], 
-                                y=[u['population'].sum(), u['ddi'].mean()],
-                                marker_color=NAVY, text=[f"{u['population'].sum():,.0f}", f"{u['ddi'].mean():.1f}"],
-                                textposition="outside"))
-            fig.add_trace(go.Bar(name="Rural", x=["Population", "DDI Score"],
-                                y=[r['population'].sum(), r['ddi'].mean()],
-                                marker_color=RED, text=[f"{r['population'].sum():,.0f}", f"{r['ddi'].mean():.1f}"],
-                                textposition="outside"))
-            fig.update_layout(**PLOTLY_LAYOUT, barmode='group', 
-                            title="Urban vs Rural: population and DDI",
-                            showlegend=True, legend=dict(orientation="h", y=-0.15),
-                            height=350)
-            st.plotly_chart(fig, use_container_width=True)
-
-
-elif page == "SADC Comparison":
-    st.markdown('<div class="page-title">Digital Desert Index across SADC</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-subtitle">Zimbabwe ranks 4th of 6 peers. Coverage is the outlier.</div>', unsafe_allow_html=True)
-
-    if 'ddi_country' in data:
-        ddi = data['ddi_country'].sort_values('ddi', ascending=True)
-        
-        colors = [RED if n == 'Zimbabwe' else NAVY for n in ddi['country_name']]
-        fig = go.Figure(go.Bar(
-            x=ddi['ddi'], y=ddi['country_name'], orientation='h',
-            marker_color=colors,
-            text=ddi['ddi'].round(1), textposition='outside',
-            textfont=dict(size=14, color="#1E293B"),
-        ))
-        fig.update_layout(**PLOTLY_LAYOUT, height=350,
-                         title="DDI Score (0-100, higher = more excluded)")
-        fig.update_xaxes(range=[0, 80], gridcolor="#E2E8F0")
-        fig.update_yaxes(autorange="reversed")
-        st.plotly_chart(fig, use_container_width=True)
-
-        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-
-        # Pillar breakdown
-        pillar_map = {'coverage_gap_score': 'Coverage', 'adoption_gap_score': 'Adoption',
-                      'affordability_gap_score': 'Affordability', 'electricity_gap_score': 'Electricity'}
-        pillar_cols = [c for c in ddi.columns if c in pillar_map]
-        
-        if pillar_cols:
-            ddi_sorted = ddi.sort_values('ddi', ascending=False)
-            fig2 = go.Figure()
-            colors_pillar = [NAVY, "#4F81BD", RED, GREY]
-            for i, col in enumerate(pillar_cols):
-                fig2.add_trace(go.Bar(
-                    name=pillar_map[col],
-                    x=ddi_sorted['country_name'],
-                    y=ddi_sorted[col],
-                    marker_color=colors_pillar[i],
-                ))
-            fig2.update_layout(**PLOTLY_LAYOUT, barmode='group', height=400,
-                             title="What drives each country's DDI",
-                             yaxis_title="Pillar score (0-100)",
-                             legend=dict(orientation="h", y=-0.15))
-            st.plotly_chart(fig2, use_container_width=True)
-        
-        st.markdown('<div class="insight-box">Zimbabwe is a <b>coverage outlier</b>: its coverage gap (44.3) is 2.8x the next-worst country (Mozambique, 16.0). But its <b>adoption gap (58.4) is even higher than its coverage gap</b> — meaning more people are offline than are uncovered. Coverage is the binding supply constraint; adoption needs a parallel demand-side push.</div>', unsafe_allow_html=True)
-
-
-elif page == "District Explorer":
-    st.markdown('<div class="page-title">Urban vs Rural Digital Desert Index</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-subtitle">Coverage, electricity and affordability are published only as urban vs rural averages — so each district\'s score reflects whether it is urban or rural, weighted by real 2022 Census population. It is not yet a per-district measurement.</div>', unsafe_allow_html=True)
-
-    if 'districts' in data:
-        df = data['districts']
-        
-        c1, c2 = st.columns([1, 2])
-        
-        with c1:
-            selected = st.selectbox("Select a district", sorted(df['district_name'].dropna().unique()))
-            
-            if selected:
-                row = df[df['district_name'] == selected].iloc[0]
-                ur = row.get('urban_rural', '?')
-                
-                st.markdown(metric_card("DDI Score", f"{row['ddi']:.1f}", 
-                    f"{'Better connected' if row['ddi'] < 40 else 'Digital desert'}", 
-                    "green" if row['ddi'] < 40 else "red"), unsafe_allow_html=True)
-                st.markdown(metric_card("Population", f"{int(row['population']):,}", 
-                    f"{ur.title()} district"), unsafe_allow_html=True)
-                st.markdown(metric_card("4G Coverage", f"{row.get('pop_covered_4g_pct', 'N/A')}%", 
-                    "POTRAZ Q4 2025"), unsafe_allow_html=True)
-                st.markdown(metric_card("Electricity", f"{row.get('electricity_access_pct', 'N/A')}%", 
-                    "World Bank"), unsafe_allow_html=True)
-                bs = row.get('base_stations_per_10k', 'N/A')
-                st.markdown(metric_card("Towers per 10k", f"{bs}", 
-                    "From POTRAZ base station allocation", "grey"), unsafe_allow_html=True)
-        
-        with c2:
-            # Honest framing: the score only takes two values (urban vs rural),
-            # because every input is a national urban/rural average. Show that
-            # comparison directly across the four pillars rather than drawing 91
-            # bars that would imply a per-district granularity we do not have.
-            u_ = df[df['urban_rural'] == 'urban']
-            r_ = df[df['urban_rural'] == 'rural']
-            pillars = [('Coverage', 'coverage_gap'), ('Adoption', 'adoption_gap'),
-                       ('Affordability', 'affordability_gap'), ('Electricity', 'electricity_gap'),
-                       ('Overall DDI', 'ddi')]
-            labels = [p[0] for p in pillars]
-            urban_vals = [round(u_[c].mean(), 1) for _, c in pillars]
-            rural_vals = [round(r_[c].mean(), 1) for _, c in pillars]
-
-            fig = go.Figure()
-            fig.add_trace(go.Bar(name="Urban districts", x=labels, y=urban_vals,
-                                 marker_color=NAVY, text=[f"{v:.1f}" for v in urban_vals],
-                                 textposition="outside"))
-            fig.add_trace(go.Bar(name="Rural districts", x=labels, y=rural_vals,
-                                 marker_color=RED, text=[f"{v:.1f}" for v in rural_vals],
-                                 textposition="outside"))
-            fig.update_layout(**PLOTLY_LAYOUT, barmode="group", height=420,
-                             title="Urban vs rural — the score is a two-level comparison",
-                             yaxis_title="Score (0-100, higher = worse)",
-                             legend=dict(orientation="h", y=-0.18))
-            fig.update_yaxes(range=[0, 110])
-            st.plotly_chart(fig, use_container_width=True)
-            st.caption("The district score reflects urban vs rural status, not per-district "
-                       "measurement — coverage, electricity and affordability are only available "
-                       "as urban/rural averages. A true district-by-district score would need more "
-                       "granular data we don't have yet, for example the actual number of cell "
-                       "towers in each district.")
-
-        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-        
-        c1, c2, c3 = st.columns(3)
-        u = df[df['urban_rural'] == 'urban']
-        r = df[df['urban_rural'] == 'rural']
-        with c1:
-            st.markdown(metric_card("Urban districts", f"{len(u)}", f"{u['population'].sum():,.0f} people ({u['population'].sum()/df['population'].sum()*100:.0f}%)"), unsafe_allow_html=True)
-        with c2:
-            st.markdown(metric_card("Rural districts", f"{len(r)}", f"{r['population'].sum():,.0f} people ({r['population'].sum()/df['population'].sum()*100:.0f}%)", "red"), unsafe_allow_html=True)
-        with c3:
-            ratio = u['base_stations_per_10k'].mean() / r['base_stations_per_10k'].mean() if r['base_stations_per_10k'].mean() > 0 else 0
-            st.markdown(metric_card("Tower density gap", f"{ratio:.1f}x", "Urban vs rural towers per 10k people", "grey"), unsafe_allow_html=True)
-
-
-elif page == "Coverage Gap":
-    st.markdown('<div class="page-title">The 67-point rural-urban 4G gap</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-subtitle">95.9% of urban Zimbabweans have 4G. Only 29% of rural Zimbabweans do.</div>', unsafe_allow_html=True)
-
-    if 'coverage' in data:
-        cov = data['coverage']
-        
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    a,b = st.columns([1.05,1])
+    with a:
+        st.markdown('<div class="shead">The headline hides the truth</div>', unsafe_allow_html=True)
         fig = go.Figure()
-        fig.add_trace(go.Bar(name="Urban", x=cov['technology'], y=cov['pop_coverage_urban_pct'],
-                            marker_color=NAVY, text=cov['pop_coverage_urban_pct'].apply(lambda x: f"{x}%"),
-                            textposition='outside'))
-        fig.add_trace(go.Bar(name="Rural", x=cov['technology'], y=cov['pop_coverage_rural_pct'],
-                            marker_color=RED, text=cov['pop_coverage_rural_pct'].apply(lambda x: f"{x}%"),
-                            textposition='outside'))
-        fig.update_layout(**PLOTLY_LAYOUT, barmode='group', height=450,
-                         title="Population coverage by technology (POTRAZ Q4 2025)",
-                         yaxis_title="Coverage (%)", yaxis_range=[0, 115],
-                         legend=dict(orientation="h", y=-0.12))
-        
-        fig.add_annotation(x="LTE", y=62, text="67-point gap", showarrow=True,
-                          arrowhead=2, font=dict(size=15, color=RED, family="Inter"),
-                          arrowcolor=RED)
-        
-        st.plotly_chart(fig, use_container_width=True)
+        fig.add_trace(go.Bar(x=["On paper<br>(subscriptions)","In reality<br>(actual users)"],
+            y=[84.6,41.6], marker_color=[GREY,RED], width=.55,
+            text=["84.6%","41.6%"], textposition="outside", textfont=dict(size=18,color=INK)))
+        chart(styled(fig, height=340, t="Connected on paper vs really online", yt="% of people", legend=False, ylim=[0,100]))
+        note("A SIM card is not the same as being online. Many people own several SIMs, and a subscription "
+             "doesn't mean someone can actually use the internet. The real gap is about <b>43 points</b>.","blue")
+    with b:
+        st.markdown('<div class="shead">Where the people are</div>', unsafe_allow_html=True)
+        if 'districts' in D:
+            df = D['districts']; u=df[df.urban_rural=='urban'].population.sum(); r=df[df.urban_rural=='rural'].population.sum()
+            fig = go.Figure(go.Pie(labels=["Towns / cities","Countryside"], values=[u,r], hole=.55,
+                marker_colors=[NAVY,RED], textinfo="label+percent", sort=False))
+            fig.add_annotation(text=f"<b>15.2M</b><br>people", showarrow=False, font=dict(size=15,color=INK))
+            chart(styled(fig, height=340, t="Zimbabwe's population (2022 Census)", legend=False))
+        note("About <b>7 in 10</b> Zimbabweans live in the countryside — exactly where coverage, "
+             "power and affordable data are weakest.","amber")
 
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            st.markdown(metric_card("Urban base stations", "8,423", "64% of all towers"), unsafe_allow_html=True)
-        with c2:
-            st.markdown(metric_card("Rural base stations", "4,681", "36% of all towers", "red"), unsafe_allow_html=True)
-        with c3:
-            st.markdown(metric_card("Rural 5G coverage", "0.0%", "vs 18.9% urban", "red"), unsafe_allow_html=True)
+# ---------------------------------------------------------------- 2. SADC
+elif page == PAGES[1]:
+    title("How Zimbabwe compares to its neighbours",
+          "We scored six Southern African countries on digital exclusion. 0 = fully connected, 100 = totally cut off.")
+    if 'ddi' in D:
+        d = D['ddi'].sort_values('ddi')
+        fig = go.Figure(go.Bar(x=d.ddi, y=d.country_name, orientation='h',
+            marker_color=[RED if n=='Zimbabwe' else NAVY for n in d.country_name],
+            text=[f"{v:.0f}" for v in d.ddi], textposition="outside", textfont=dict(size=15,color=INK)))
+        chart(styled(fig, height=360, t="Digital exclusion score (higher = worse)", xt="Score 0–100", legend=False, xlim=[0,80]))
+        note("Zimbabwe sits <b>4th of 6</b> — middle of the pack. Malawi and Mozambique fare worse mainly "
+             "because almost nobody is online and rural areas have no power. Botswana and South Africa do best.","blue")
 
-        st.markdown('<div class="insight-box">8,423 base stations serve urban areas (64% of total) while only 4,681 serve rural areas (36%) despite 60% of the population living rurally. OpenCellID independently confirms: of 8,587 crowdsourced towers, only 49 (0.6%) are LTE.</div>', unsafe_allow_html=True)
-
-
-elif page == "Affordability":
-    st.markdown('<div class="page-title">Affordability: close on basics, 6x on heavy use</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-subtitle">The basic basket is near the UN target, but students and remote workers face much steeper costs</div>', unsafe_allow_html=True)
-
-    if 'affordability' in data:
-        aff = data['affordability'].sort_values('basket_low_1gb_pct_gni', ascending=False)
-        
+        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="shead">What\'s holding each country back?</div>', unsafe_allow_html=True)
+        ds = D['ddi'].sort_values('ddi', ascending=False)
         fig = go.Figure()
-        colors_bar = [RED if iso == 'ZWE' else NAVY for iso in aff['country_iso3']]
-        fig.add_trace(go.Bar(
-            x=aff['country_name'], y=aff['basket_low_1gb_pct_gni'],
-            marker_color=colors_bar,
-            text=aff['basket_low_1gb_pct_gni'].apply(lambda x: f"{x:.1f}%"),
-            textposition='outside', name="Low basket (1GB)"
-        ))
-        fig.add_hline(y=2, line_dash="dash", line_color="#059669", line_width=2,
-                     annotation_text="UN 2% target", annotation_position="top left",
-                     annotation_font_color="#059669")
-        fig.update_layout(**PLOTLY_LAYOUT, height=400,
-                         title="Mobile broadband basket (1GB) as % of GNI per capita",
-                         yaxis_title="% of GNI", showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
+        for col,(lab,clr) in PILL_C.items():
+            fig.add_trace(go.Bar(name=lab, x=ds.country_name, y=ds[col], marker_color=clr))
+        chart(styled(fig, height=420, t="The four things we measured, by country", yt="Score (higher = worse)"))
+        cc = st.columns(2)
+        with cc[0]:
+            note("<b>Zimbabwe's signature problem is the signal.</b> Its <i>No 4G signal</i> score (44) is the "
+                 "worst in the group — the others all have 85%+ 4G reach. Coverage, not price, is the first thing to fix.","red")
+        with cc[1]:
+            note("<b>But getting people online matters just as much.</b> Zimbabwe's <i>Not online yet</i> score (58) "
+                 "is even higher than its signal gap — so towers alone won't close the divide.","amber")
 
-        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-        
-        st.markdown("#### Zimbabwe basket comparison")
-        c1, c2, c3, c4 = st.columns(4)
-        with c1:
-            st.markdown(metric_card("Basic 1GB", "3.15%", "UN target: 2%", "green"), unsafe_allow_html=True)
-        with c2:
-            st.markdown(metric_card("High 5GB", "9.05%", "4.5x the target", "red"), unsafe_allow_html=True)
-        with c3:
-            st.markdown(metric_card("Data-only 5GB", "12.92%", "6.5x the target", "red"), unsafe_allow_html=True)
-        with c4:
-            st.markdown(metric_card("Fixed BB 5GB", "12.80%", "6.4x the target", "red"), unsafe_allow_html=True)
+# ---------------------------------------------------------------- 3. Town vs countryside
+elif page == PAGES[2]:
+    title("Town vs countryside",
+          "Coverage, power and data prices are reported as town-vs-countryside averages — so a district's "
+          "score reflects whether it's urban or rural. It is not yet a per-district measurement.")
+    if 'districts' in D:
+        df = D['districts']; u=df[df.urban_rural=='urban']; r=df[df.urban_rural=='rural']
+        c = st.columns(3)
+        with c[0]: card("Towns / cities",f"{len(u)} areas",f"{u.population.sum()/df.population.sum()*100:.0f}% of people")
+        with c[1]: card("Countryside",f"{len(r)} areas",f"{r.population.sum()/df.population.sum()*100:.0f}% of people","red")
+        with c[2]: card("Exclusion score gap","27 → 52","town vs countryside","amber")
 
-        st.markdown('<div class="insight-box blue">Basic mobile is mid-range in SADC (better than Malawi 7.7%). But students doing e-learning, patients using telemedicine, and remote workers need 5GB+, where costs hit 6x the UN target. In April 2026, Minister Mavetera ordered POTRAZ to conduct cost-based pricing reviews.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+        a,b = st.columns([1.2,1])
+        with a:
+            pillars=[("Overall score","ddi"),("No 4G signal","coverage_gap"),("Not online","adoption_gap"),
+                     ("Data cost","affordability_gap"),("No power","electricity_gap")]
+            labs=[p[0] for p in pillars]
+            uv=[round(u[c2].mean(),1) for _,c2 in pillars]; rv=[round(r[c2].mean(),1) for _,c2 in pillars]
+            fig=go.Figure()
+            fig.add_trace(go.Bar(name="Towns",x=labs,y=uv,marker_color=NAVY,text=[f"{v:.0f}" for v in uv],textposition="outside"))
+            fig.add_trace(go.Bar(name="Countryside",x=labs,y=rv,marker_color=RED,text=[f"{v:.0f}" for v in rv],textposition="outside"))
+            chart(styled(fig, height=400, t="What separates town from countryside", yt="Score (higher = worse)", ylim=[0,110]))
+            st.markdown('<small class="cap">The gap is almost entirely about the signal and electricity. '
+                        'Data price and being online are national figures, so they\'re the same on both sides.</small>',
+                        unsafe_allow_html=True)
+        with b:
+            st.markdown('<div class="shead">Look up a district</div>', unsafe_allow_html=True)
+            sel = st.selectbox("Choose a district", sorted(df.district_name.unique()))
+            row = df[df.district_name==sel].iloc[0]
+            kind = row.urban_rural.title()
+            card("Exclusion score", f"{row.ddi:.0f}",
+                 f"{'Better connected' if row.ddi<40 else 'A digital desert'} · {kind} area",
+                 "green" if row.ddi<40 else "red")
+            st.write("")
+            card("People (2022 Census)", f"{int(row.population):,}", f"{kind} district")
+            st.write("")
+            card("Has 4G signal", f"{row.pop_covered_4g_pct:.0f}%", f"Electricity: {row.electricity_access_pct:.0f}%","amber")
+        note("Why only two levels? Because the inputs are town/countryside averages. A true district-by-district "
+             "score would need more detailed data we don't have yet — for example the actual number of cell towers "
+             "in each district.","blue")
 
+# ---------------------------------------------------------------- 4. Coverage
+elif page == PAGES[3]:
+    title("Where the signal reaches",
+          "96% of town-dwellers have 4G. Only 29% of rural Zimbabweans do. Newer 5G barely exists outside cities.")
+    if 'coverage' in D:
+        cov = D['coverage']
+        fig=go.Figure()
+        fig.add_trace(go.Bar(name="Towns",x=cov.technology,y=cov.pop_coverage_urban_pct,marker_color=NAVY,
+            text=[f"{v:.0f}%" for v in cov.pop_coverage_urban_pct],textposition="outside"))
+        fig.add_trace(go.Bar(name="Countryside",x=cov.technology,y=cov.pop_coverage_rural_pct,marker_color=RED,
+            text=[f"{v:.0f}%" for v in cov.pop_coverage_rural_pct],textposition="outside"))
+        chart(styled(fig, height=400, t="Share of people covered, by network type", yt="% of people covered", ylim=[0,115]))
+        c=st.columns(3)
+        with c[0]: card("4G gap, town vs country","67 points","96% vs 29%","red")
+        with c[1]: card("5G in the countryside","0%","vs 19% in towns","red")
+        with c[2]: card("Even basic 3G rural","74%","a quarter still on 2G only","amber")
+        note("Most rural Zimbabweans can make a call (2G) but can't reliably do the modern things that matter — "
+             "video lessons, telemedicine, online forms, mobile banking beyond simple USSD. That's the difference "
+             "between <b>having a signal</b> and <b>having a useful signal</b>.","blue")
 
-elif page == "Infrastructure":
-    st.markdown('<div class="page-title">Infrastructure distribution</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-subtitle">Where the towers are vs where the people are</div>', unsafe_allow_html=True)
+# ---------------------------------------------------------------- 5. Affordability
+elif page == PAGES[4]:
+    title("The cost of getting online",
+          "Basic data is close to affordable. But the moment you need enough to study, work or see a doctor online, the price jumps.")
+    if 'afford' in D:
+        af = D['afford'].sort_values('basket_low_1gb_pct_gni', ascending=False)
+        fig=go.Figure(go.Bar(x=af.country_name, y=af.basket_low_1gb_pct_gni,
+            marker_color=[RED if i=='ZWE' else NAVY for i in af.country_iso3],
+            text=[f"{v:.1f}%" for v in af.basket_low_1gb_pct_gni], textposition="outside", textfont=dict(size=14)))
+        fig.add_hline(y=2, line_dash="dash", line_color=GREEN, line_width=2,
+                      annotation_text="UN target: 2% of income", annotation_position="top right",
+                      annotation_font_color=GREEN)
+        chart(styled(fig, height=370, t="Cost of 1GB of data (share of monthly income)", yt="% of income", legend=False))
+        note("For a basic 1GB, Zimbabwe (<b>3.15%</b>) is mid-range for the region — cheaper than Malawi or "
+             "Mozambique. The problem isn't basic browsing; it's heavy use.","blue")
 
-    if 'base_stations' in data:
-        bs = data['base_stations']
-        bs_ops = bs[bs['operator'] != 'Total']
-        
-        fig = go.Figure()
-        fig.add_trace(go.Bar(name="Urban", x=bs_ops['operator'], y=bs_ops['urban'],
-                            marker_color=NAVY, text=bs_ops['urban'], textposition='outside'))
-        fig.add_trace(go.Bar(name="Rural", x=bs_ops['operator'], y=bs_ops['rural'],
-                            marker_color=RED, text=bs_ops['rural'], textposition='outside'))
-        fig.update_layout(**PLOTLY_LAYOUT, barmode='group', height=400,
-                         title="Base stations by operator and area (POTRAZ Q4 2025)",
-                         yaxis_title="Number of base stations",
-                         legend=dict(orientation="h", y=-0.12))
-        st.plotly_chart(fig, use_container_width=True)
+        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+        a,b=st.columns([1,1])
+        with a:
+            st.markdown('<div class="shead">Cost climbs fast with real use</div>', unsafe_allow_html=True)
+            zw = D['afford'][D['afford'].country_iso3=='ZWE'].iloc[0]
+            labs=["Basic<br>1GB","Heavy<br>5GB mobile","Home<br>5GB fixed"]
+            vals=[zw.basket_low_1gb_pct_gni, zw.basket_data_only_5gb_pct_gni, zw.basket_fixed_bb_5gb_pct_gni]
+            fig=go.Figure(go.Bar(x=labs,y=vals,marker_color=[GREEN,RED,RED],
+                text=[f"{v:.1f}%" for v in vals],textposition="outside",textfont=dict(size=15)))
+            fig.add_hline(y=2,line_dash="dash",line_color=GREEN)
+            chart(styled(fig, height=340, t="Zimbabwe: data cost by how much you need", yt="% of income", legend=False, ylim=[0,16]))
+        with b:
+            st.markdown('<div class="shead">What people spend their data on</div>', unsafe_allow_html=True)
+            if 'usage' in D:
+                us=D['usage']
+                fig=go.Figure(go.Pie(labels=us.application, values=us.share_pct, hole=.5, sort=False,
+                    marker_colors=[GREEN,RED,BLUE,AMBER,GREY], textinfo="label+percent"))
+                chart(styled(fig, height=340, t="Share of mobile data traffic", legend=False))
+        note("A student doing e-learning, a patient using telemedicine, or a remote worker needs 5GB or more — "
+             "where the cost hits <b>6× the UN target</b>. In April 2026 the ICT Minister ordered POTRAZ to review "
+             "these prices. People stretch what little data they have on WhatsApp.","amber")
 
-    if 'towers' in data:
-        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-        st.markdown("#### OpenCellID crowdsourced tower density")
-        
-        tw = data['towers']
-        if 'towers_per_10k' in tw.columns:
-            tw_plot = tw.sort_values('towers_per_10k', ascending=True).tail(25)
-            ur_colors = [RED if ur == 'rural' else NAVY for ur in tw_plot.get('urban_rural', ['rural']*len(tw_plot))]
-            
-            fig = go.Figure(go.Bar(
-                x=tw_plot['towers_per_10k'], y=tw_plot['district_name'], orientation='h',
-                marker_color=ur_colors,
-                text=tw_plot['towers_per_10k'].apply(lambda x: f"{x:.1f}"),
-                textposition='outside',
-            ))
-            fig.update_layout(**PLOTLY_LAYOUT, height=600,
-                             title="Tower density by district (top 25)",
-                             xaxis_title="Towers per 10k people")
-            st.plotly_chart(fig, use_container_width=True)
-        
-        st.markdown('<div class="insight-box">OpenCellID data is crowdsourced and heavily biased toward NetOne (99% of entries). Use for relative density ranking between districts, not absolute tower counts.</div>', unsafe_allow_html=True)
+# ---------------------------------------------------------------- 6. Infrastructure
+elif page == PAGES[5]:
+    title("Where the towers are",
+          "Most of Zimbabwe's masts sit in towns. Satellite internet is now the fastest-growing way to fill the rural gap.")
+    if 'stations' in D:
+        bs = D['stations'][D['stations'].operator!='Total']
+        fig=go.Figure()
+        fig.add_trace(go.Bar(name="Town towers",x=bs.operator,y=bs.urban,marker_color=NAVY,
+            text=bs.urban,textposition="outside"))
+        fig.add_trace(go.Bar(name="Countryside towers",x=bs.operator,y=bs.rural,marker_color=RED,
+            text=bs.rural,textposition="outside"))
+        chart(styled(fig, height=370, t="Mobile towers by operator and area", yt="Number of towers"))
+        c=st.columns(3)
+        with c[0]: card("Towers in towns","8,423","64% of all towers")
+        with c[1]: card("Towers in countryside","4,681","36% — for 70% of people","red")
+        with c[2]: card("Biggest network","Econet","74% of mobile users")
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    a,b=st.columns([1.1,1])
+    with a:
+        st.markdown('<div class="shead">Satellite is filling the gap</div>', unsafe_allow_html=True)
+        if 'tech' in D:
+            t = D['tech'][~D['tech'].technology.isin(['Total'])].sort_values('change_pct')
+            fig=go.Figure(go.Bar(x=t.change_pct,y=t.technology,orientation='h',
+                marker_color=[GREEN if v>0 else GREY for v in t.change_pct],
+                text=[f"{v:+.0f}%" for v in t.change_pct],textposition="outside"))
+            chart(styled(fig, height=360, t="Growth in internet connections (last quarter)", xt="Change %", legend=False))
+        note("<b>Starlink (VSAT) grew 32% in a single quarter</b> — by far the fastest. For remote schools and "
+             "clinics that no operator will ever reach commercially, satellite is becoming the practical answer.","green")
+    with b:
+        st.markdown('<div class="shead">Who provides mobile internet</div>', unsafe_allow_html=True)
+        if 'subs' in D:
+            sb=D['subs'][D['subs'].operator!='Total']
+            fig=go.Figure(go.Pie(labels=sb.operator,values=sb.market_share_q4_pct,hole=.5,sort=False,
+                marker_colors=[NAVY,BLUE,GREY],textinfo="label+percent"))
+            chart(styled(fig, height=360, t="Mobile subscriber market share", legend=False))
+        st.markdown('<small class="cap">A separate crowdsourced tower map (OpenCellID) backs this up but leans '
+                    '99% toward one operator, so we use it only as a rough cross-check — never as exact counts.</small>',
+                    unsafe_allow_html=True)
 
+# ---------------------------------------------------------------- 7. Methodology
+elif page == PAGES[6]:
+    title("How we measured it",
+          "One simple, honest score — built from public data anyone can re-check.")
+    st.markdown('<div class="shead">The exclusion score adds up four things</div>', unsafe_allow_html=True)
+    cols = st.columns(4)
+    items = [("📡 No 4G signal","Share of people <b>without</b> a 4G signal.",NAVY),
+             ("🌐 Not online yet","Share of people <b>not</b> using the internet.",TEAL),
+             ("💸 Data too costly","How expensive data is, vs people's income.",RED),
+             ("🔌 No power for towers","Share of rural homes <b>without</b> electricity — a tower with no power is offline.",AMBER)]
+    for col,(h,t,clr) in zip(cols,items):
+        with col:
+            st.markdown(f"""<div class="card" style="border-top-color:{clr}">
+                <div class="val" style="font-size:1.05rem">{h}</div>
+                <div class="sub" style="font-size:.86rem;color:#475569">{t}</div></div>""", unsafe_allow_html=True)
+    note("We give all four equal weight, average them, and scale 0–100. No black boxes, no hidden tuning — "
+         "run the same code on the same data and you get the same numbers.","blue")
 
-elif page == "Methodology":
-    st.markdown('<div class="page-title">Methodology and robustness</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-subtitle">How the Digital Desert Index is built, and how sensitive the ranking is to our choices</div>', unsafe_allow_html=True)
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="shead">Does the result hold up?</div>', unsafe_allow_html=True)
+    if 'sens' in D:
+        s=D['sens']
+        fig=go.Figure(go.Bar(x=s.scheme,y=s.zwe_rank,marker_color=NAVY,
+            text=[f"#{int(v)}" for v in s.zwe_rank],textposition="outside"))
+        fig.update_yaxes(autorange="reversed", dtick=1)
+        chart(styled(fig, height=330, t="Zimbabwe's rank when we change the recipe", yt="Rank (of 6)", legend=False))
+        note("We re-ran the score six different ways — doubling the weight on coverage, on price, on adoption, "
+             "even dropping electricity. Zimbabwe always lands <b>3rd or 4th of 6</b>. The conclusion doesn't depend "
+             "on our choices.","green")
 
-    st.markdown("#### The four pillars")
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="shead">What we\'re honest about</div>', unsafe_allow_html=True)
     st.markdown("""
-    The DDI is an equally-weighted mean of four sub-indices, each scaled 0-100 where higher means more excluded:
-    """)
-    
-    method = pd.DataFrame([
-        {"Pillar": "Coverage gap", "Formula": "100 − % population with 4G/LTE", "Source": "POTRAZ Q4 2025, ITU DataHub"},
-        {"Pillar": "Adoption gap", "Formula": "100 − % individuals using Internet", "Source": "World Bank 2024"},
-        {"Pillar": "Affordability gap", "Formula": "min(100, basket % of GNI × 10)", "Source": "ITU DataHub baskets"},
-        {"Pillar": "Electricity gap", "Formula": "100 − % rural electricity access", "Source": "World Bank 2023"},
-    ])
-    st.dataframe(method, use_container_width=True, hide_index=True)
+- **District scores are town-vs-countryside, not yet per-district** — coverage, power and price are only published as urban/rural averages.
+- **District populations are real** 2022 Census figures, so the town/countryside split is solid.
+- **Cross-country signal isn't perfectly like-for-like** — each country reports its own coverage; Zimbabwe's regulator reports rural coverage honestly (29%), so its rank is, if anything, conservative.
+- **The score uses electricity as a stand-in for real network quality** — there's no measured-speed data yet.
+""")
 
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-
-    st.markdown("#### Sensitivity analysis: is the ranking robust?")
-    st.write("A fair question for any composite index: does the result depend on the weights we chose? We re-ran the DDI under six weighting schemes. Zimbabwe stays between rank 3 and 4 of 6 in every case, never better than 3, never worse than 4.")
-
-    if 'sensitivity' in data:
-        sens = data['sensitivity']
-        fig = go.Figure(go.Bar(
-            x=sens['scheme'], y=sens['zwe_rank'],
-            marker_color=NAVY,
-            text=sens['zwe_rank'].apply(lambda x: f"#{int(x)}"),
-            textposition='outside',
-        ))
-        fig.update_layout(**PLOTLY_LAYOUT, height=350,
-                         title="Zimbabwe's DDI rank under different weighting schemes",
-                         showlegend=False)
-        fig.update_yaxes(title="Rank (of 6)", autorange="reversed", dtick=1)
-        st.plotly_chart(fig, use_container_width=True)
-        st.dataframe(sens, use_container_width=True, hide_index=True)
-
-    st.markdown('<div class="insight-box blue">The ranking is robust. Whether we double the weight on coverage, affordability, adoption, or drop electricity entirely, Zimbabwe remains in the bottom half of the SADC peer group. The conclusion does not depend on our weighting choice.</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-
-    st.markdown("#### District-level DDI: real Census populations, an honest two-level surface")
-    st.write("District populations come from the ZimStat 2022 Census (91 urban and rural units, 15.18 million people), computed by a dedicated geopandas-free script so every number reproduces exactly. Because POTRAZ coverage and World Bank electricity are published only at the national rural/urban level, the per-district DDI is a clean two-level surface: urban districts score 27.5, rural districts 52.4. Population-weighting those gives a national district DDI of 45.1 — consistent with the country-level 45.7.")
-
-    st.markdown('<div class="insight-box">We tested folding OpenCellID crowdsourced tower density into the coverage pillar to add district variation, but the source is ~99% NetOne-biased and spatially noisy — it produced artefacts such as central districts appearing better covered than they are. OpenCellID is therefore reported as an independent cross-check only, not blended into the index.</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-
-    st.markdown("#### Known limitations")
-    st.markdown("""
-    - **District populations are real 2022 Census figures** for all 91 urban/rural units — no area-based apportionment.
-    - **Cross-country coverage is not strictly like-for-like.** Peer 4G coverage is each regulator's self-reported ITU figure (Malawi 88.9%, Zambia 91.2%); Zimbabwe's reflects POTRAZ reporting rural coverage honestly at 29%. Even zeroing Zimbabwe's coverage gap leaves it 4th of 6.
-    - **Affordability uses national GNI**, not district income, so it understates barriers in poorer districts.
-    - **No measured speed data.** Electricity access serves as a proxy for real-world network availability. A future quality pillar would use ITU QoS indicators or operator speed reports.
-    - **POTRAZ coverage is operator-declared** and may overstate real-world signal.
-    """)
-
-
-elif page == "Policy":
-    st.markdown('<div class="page-title">Policy recommendations</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-subtitle">11 evidence-based recommendations grounded in DDI findings</div>', unsafe_allow_html=True)
-    
-    st.markdown('<div class="insight-box">Two findings shape these recommendations: (1) Zimbabwe has the worst 4G coverage in its peer group, so <b>supply-side infrastructure</b> is the first-order fix, and (2) adoption lags even further behind coverage, so <b>demand-side measures</b> (devices, affordability, literacy) must run in parallel. Towers alone will not close the gap.</div>', unsafe_allow_html=True)
-
-    tab1, tab2, tab3, tab4 = st.tabs(["Coverage", "Affordability", "Adoption", "Electrification"])
-    
-    with tab1:
-        st.markdown("#### Close the coverage gap (DDI 44.3 / worst in SADC)")
+# ---------------------------------------------------------------- 8. Policy
+elif page == PAGES[7]:
+    title("What should happen",
+          "Two facts drive everything: the signal is the first problem, and getting people online is the second.")
+    note("<b>Build the towers — but don't stop there.</b> Zimbabwe has the region's weakest 4G reach, so "
+         "infrastructure comes first. But more people are <i>offline</i> than are <i>uncovered</i>, so devices, "
+         "affordable heavy-use data and digital skills have to go alongside.","blue")
+    t1,t2,t3,t4 = st.tabs(["📡 Close the signal gap","💸 Make data affordable","🌐 Get people online","🔌 Power the towers"])
+    with t1:
         st.markdown("""
-        **1. Redirect the Universal Service Fund using the DDI as a targeting tool.**
-        61 of 91 census districts are rural. Use the DDI to prioritise 4G tower deployment instead of operator-driven site selection.
-        
-        **2. Mandate shared rural infrastructure.**
-        Tower density is 4.5x higher in urban areas. Require active network sharing in the worst-served districts to reduce per-operator deployment cost.
-        
-        **3. Accelerate Starlink at schools and clinics.**
-        VSAT subscriptions grew 31.6% in Q4 2025 alone. Integrate satellite into the formal rural connectivity strategy.
-        
-        **4. Formalise community networks in coverage deserts.**
-        In districts like Binga (159,982 people), Mbire (83,724), and Tsholotsho (115,782) where no operator will deploy commercially.
-        """)
-    
-    with tab2:
-        st.markdown("#### Improve affordability (DDI 31.5)")
-        st.markdown("""
-        **5. Cost-based pricing reviews on data-heavy baskets.**
-        The basic 1GB basket (3.15% of GNI) is close to the UN 2% target. But data-only 5GB (12.92%) and fixed broadband (12.80%) are 6x over. Minister Mavetera's April 2026 directive is the policy hook.
-        
-        **6. Zero-rate education, health, and agriculture services.**
-        Target bottom-quintile DDI districts specifically.
-        
-        **7. Link spectrum fees to rural deployment obligations.**
-        Offer fee discounts conditioned on measurable 4G expansion in worst-served districts.
-        """)
-    
-    with tab3:
-        st.markdown("#### Enable adoption (DDI 58.4)")
-        st.markdown("""
-        **8. Address the device gap.**
-        Smartphone penetration is around 15%. Explore device financing through mobile money instalment plans.
-        
-        **9. Invest in digital literacy via the AI Strategy 2026-2030.**
-        Adult literacy is 93.2%, but digital literacy is a separate skill that requires structured programmes.
-        
-        **10. Mandate quality reporting.**
-        POTRAZ currently reports coverage (yes/no) but not measured speed per ward. Require operators to publish median download speed and latency, enabling a future DDI quality pillar.
-        """)
-    
-    with tab4:
-        st.markdown("#### Electrification as connectivity enabler (DDI 48.6)")
-        st.markdown("""
-        **11. Co-locate connectivity and electrification investment.**
-        Rural electricity access is 51.4% vs 84% urban. The same districts that lack power are the same districts that lack connectivity. Coordinate POTRAZ with the Rural Electrification Agency for solar-powered tower sites.
-        """)
+**1. Target tower-building with the score.** 61 of the 91 districts are rural — use the exclusion score to decide where 4G goes, instead of leaving it to operators.
 
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="insight-box blue">The DDI is not a one-time report. Re-running the pipeline with updated quarterly POTRAZ data measures progress. Every recommendation targets specific districts using the index.</div>', unsafe_allow_html=True)
+**2. Make operators share rural masts.** Towns have far denser coverage; sharing infrastructure cuts the cost of reaching the countryside.
+
+**3. Lean on satellite for the hardest places.** Starlink grew 32% in one quarter — put it in remote schools and clinics now.
+
+**4. Back community networks** where no operator will ever go commercially (Binga, Mbire, Tsholotsho).""")
+    with t2:
+        st.markdown("""
+**5. Review prices on heavy-use data.** Basic 1GB is fine (3.15% of income); 5GB packages cost 6× the UN target. That's the minister's April 2026 directive — focus it there.
+
+**6. Zero-rate the essentials** — education, health and farming services — in the worst-served districts.
+
+**7. Tie spectrum fees to rural rollout.** Give operators a discount when they prove real 4G expansion in the neediest districts.""")
+    with t3:
+        st.markdown("""
+**8. Tackle the phone gap.** Only ~15% own a smartphone. Device payment plans through mobile money would help.
+
+**9. Teach digital skills,** not just literacy — many people who *could* get online still don't. Build it into the national AI strategy.
+
+**10. Require quality reporting.** Operators should publish real speeds per area, so the score can one day measure quality, not just coverage.""")
+    with t4:
+        st.markdown("""
+**11. Connect power and connectivity planning.** The districts without electricity (rural access 51% vs 84% in towns) are the same ones without signal. Co-fund solar-powered towers with the Rural Electrification Agency — one investment, two wins.""")
+    note("The score isn't a one-off report. Re-run it each quarter with fresh POTRAZ data and you can track whether "
+         "the gap is actually closing — district by district.","green")

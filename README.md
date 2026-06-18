@@ -336,10 +336,12 @@ Equal weights are used because: (a) no empirical basis exists for preferring
 one pillar over another in the Zimbabwean context; (b) equal weights are
 transparent and reproducible; (c) we tested six alternative weighting schemes
 (coverage ×2, affordability ×2, adoption ×2, drop electricity, infrastructure
-focus) and Zimbabwe's mid-pack position is robust — it stays **3rd–4th out of
-6** under every scheme (it moves to 3rd only when coverage is up-weighted or
-electricity dropped, because Zambia overtakes it). The full table is
-reproducible via `src/compute_ddi.py`, which writes `ddi_sensitivity.csv`.
+focus). Ranking from best-connected first, Zimbabwe's mid-pack position is
+robust: it stays **3rd to 4th out of 6** under every scheme (it slips to 4th
+only when coverage is up-weighted or electricity is dropped, as Zambia edges
+ahead of it). The full table is reproducible via `src/compute_ddi.py`, which
+writes `ddi_sensitivity.csv` (that file records the raw index rank, where 1 is
+most excluded).
 
 ### Known limitations
 
@@ -349,9 +351,10 @@ reproducible via `src/compute_ddi.py`, which writes `ddi_sensitivity.csv`.
   population-weighted 55.7%. POTRAZ reports rural coverage honestly (29%),
   while some peer regulators report optimistic blended national numbers, so
   Zimbabwe's *coverage rank* is partly a measurement artefact. This does not
-  change Zimbabwe's overall position: zeroing its coverage gap entirely still
-  leaves it 4th. Coverage is the least comparable of the four pillars; the
-  adoption, affordability, and electricity pillars are on consistent bases.
+  change Zimbabwe's overall position: even with its coverage gap zeroed out, it
+  stays 3rd of 6, behind only South Africa and Botswana. Coverage is the least
+  comparable of the four pillars; the adoption, affordability, and electricity
+  pillars are on consistent bases.
 - **District-level DDI is two-level by construction** (urban vs rural) because
   POTRAZ publishes coverage and the World Bank publishes electricity only at
   the national rural/urban level, not per district. District *populations* are

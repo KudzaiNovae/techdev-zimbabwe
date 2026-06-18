@@ -21,6 +21,14 @@ from pathlib import Path
 import argparse
 import time
 
+# Windows consoles default to cp1252 and crash (UnicodeEncodeError) on the
+# box-drawing banner and the check/cross icons below. Force UTF-8 output.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 ROOT = Path(__file__).parent
 SRC = ROOT / "src"
 DATA_RAW = ROOT / "data" / "raw"
@@ -69,9 +77,21 @@ STEPS = [
         "script": "compute_ddi.py",
         "requires": ["data/raw/worldbank/wb_indicators_wide.csv"],
         "produces": ["data/processed/ddi_country.csv",
-                     "data/processed/ddi_summary.txt"],
+                     "data/processed/ddi_summary.txt",
+                     "data/processed/ddi_sensitivity.csv"],
         "manual": False,
-        "description": "Computes the Digital Desert Index for all countries.",
+        "description": "Computes the Digital Desert Index + sensitivity analysis for all countries.",
+    },
+    {
+        "name": "District DDI (reproducible)",
+        "script": "compute_district_ddi.py",
+        "requires": ["data/raw/zimstat/zwe_district_population_2022_census.csv",
+                     "data/processed/potraz_q4_2025_coverage.csv",
+                     "data/raw/worldbank/wb_indicators_wide.csv"],
+        "produces": ["data/processed/zwe_districts_ddi_census.csv",
+                     "data/processed/zwe_districts_ddi_summary.txt"],
+        "manual": False,
+        "description": "Clean four-pillar district DDI from 2022 Census pops + POTRAZ + WB + ITU (no geopandas).",
     },
     {
         "name": "Country comparison charts",
@@ -93,15 +113,15 @@ STEPS = [
         "description": "Rural-urban gap, base stations, internet tech mix charts.",
     },
     {
-        "name": "District master table",
+        "name": "District master table (map geometry)",
         "script": "build_district_table.py",
         "requires": ["data/raw/geo/gadm41_ZWE.gpkg",
-                     "data/processed/potraz_q4_2025_coverage.csv"],
+                     "data/processed/zwe_districts_ddi_census.csv"],
         "produces": ["data/processed/zwe_districts_master.gpkg",
                      "data/processed/zwe_districts_master.csv"],
         "manual": True,
-        "manual_action": "Download GADM: wget https://geodata.ucdavis.edu/gadm/gadm4.1/gpkg/gadm41_ZWE.gpkg -P data/raw/geo/",
-        "description": "Joins GADM districts to POTRAZ coverage + WB indicators.",
+        "manual_action": "Download the REAL GADM (several MB, not the stub): wget https://geodata.ucdavis.edu/gadm/gadm4.1/gpkg/gadm41_ZWE.gpkg -P data/raw/geo/",
+        "description": "Joins district DDI to GADM admin-2 geometry for the maps (warns if GADM is a stub).",
     },
     {
         "name": "District choropleth maps",

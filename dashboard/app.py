@@ -142,7 +142,7 @@ with st.sidebar:
     st.caption("ITU Data Hackathon 2026")
     st.markdown("---")
     
-    page = st.radio("", [
+    page = st.radio("Navigation", [
         "Overview",
         "SADC Comparison",
         "District Explorer",
@@ -225,9 +225,9 @@ elif page == "SADC Comparison":
             textfont=dict(size=14, color="#1E293B"),
         ))
         fig.update_layout(**PLOTLY_LAYOUT, height=350,
-                         title="DDI Score (0-100, higher = more excluded)",
-                         xaxis=dict(range=[0, 80], gridcolor="#E2E8F0"),
-                         yaxis=dict(autorange="reversed"))
+                         title="DDI Score (0-100, higher = more excluded)")
+        fig.update_xaxes(range=[0, 80], gridcolor="#E2E8F0")
+        fig.update_yaxes(autorange="reversed")
         st.plotly_chart(fig, use_container_width=True)
 
         st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
@@ -464,8 +464,8 @@ elif page == "Methodology":
         ))
         fig.update_layout(**PLOTLY_LAYOUT, height=350,
                          title="Zimbabwe's DDI rank under different weighting schemes",
-                         yaxis=dict(title="Rank (of 6)", autorange="reversed", dtick=1),
                          showlegend=False)
+        fig.update_yaxes(title="Rank (of 6)", autorange="reversed", dtick=1)
         st.plotly_chart(fig, use_container_width=True)
         st.dataframe(sens, use_container_width=True, hide_index=True)
 

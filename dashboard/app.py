@@ -139,7 +139,7 @@ if page == PAGES[0]:
     with c[0]: card("Say they're connected","84.6%","POTRAZ mobile subscriptions")
     with c[1]: card("Actually use the internet","41.6%","World Bank, real users","red")
     with c[2]: card("Rural areas with 4G","29%","against 96% in towns","red")
-    with c[3]: card("Zimbabwe's regional rank","#4 of 6","on digital exclusion (SADC)","amber")
+    with c[3]: card("Zimbabwe's regional rank","3rd of 6","only South Africa and Botswana do better","amber")
 
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
     a,b = st.columns([1.05,1])
@@ -173,8 +173,9 @@ elif page == PAGES[1]:
             marker_color=[RED if n=='Zimbabwe' else NAVY for n in d.country_name],
             text=[f"{v:.0f}" for v in d.ddi], textposition="outside", textfont=dict(size=15,color=INK)))
         chart(styled(fig, height=360, t="Digital exclusion score (higher means worse)", xt="Score from 0 to 100", legend=False, xlim=[0,80]))
-        note("Zimbabwe comes <b>4th out of 6</b>, so it sits in the middle. Malawi and Mozambique do worse mainly "
-             "because very few people are online and rural areas have no power. Botswana and South Africa do best.","blue")
+        note("Zimbabwe comes <b>3rd out of 6</b> here. Only South Africa and Botswana are better connected. "
+             "Malawi, Mozambique and Zambia all do worse, mainly because very few people are online and rural "
+             "areas have no power.","blue")
 
         st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
         st.markdown('<div class="shead">What is holding each country back?</div>', unsafe_allow_html=True)
@@ -352,11 +353,12 @@ elif page == PAGES[6]:
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
     st.markdown('<div class="shead">Does the result hold up?</div>', unsafe_allow_html=True)
     if 'sens' in D:
-        s=D['sens']
-        fig=go.Figure(go.Bar(x=s.scheme,y=s.zwe_rank,marker_color=NAVY,
-            text=[f"#{int(v)}" for v in s.zwe_rank],textposition="outside"))
+        s=D['sens'].copy()
+        s['rank_best']=7-s['zwe_rank']   # show 1 = best connected, to match the rest of the dashboard
+        fig=go.Figure(go.Bar(x=s.scheme,y=s.rank_best,marker_color=NAVY,
+            text=[f"#{int(v)}" for v in s.rank_best],textposition="outside"))
         fig.update_yaxes(autorange="reversed", dtick=1)
-        chart(styled(fig, height=330, t="Zimbabwe's rank when we change the recipe", yt="Rank (out of 6)", legend=False))
+        chart(styled(fig, height=330, t="Zimbabwe's rank when we change the recipe (1 = best connected)", yt="Rank (out of 6)", legend=False))
         note("We ran the score six different ways, including doubling the weight on coverage, on price and on "
              "adoption, and even dropping electricity altogether. Zimbabwe always lands <b>3rd or 4th out of 6</b>, "
              "so the conclusion does not depend on our choices.","green")

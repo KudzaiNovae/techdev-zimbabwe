@@ -258,8 +258,8 @@ elif page == "SADC Comparison":
 
 
 elif page == "District Explorer":
-    st.markdown('<div class="page-title">District-Level Digital Desert Index</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-subtitle">91 districts from the ZimStat 2022 Census, classified by POTRAZ coverage data</div>', unsafe_allow_html=True)
+    st.markdown('<div class="page-title">Urban vs Rural Digital Desert Index</div>', unsafe_allow_html=True)
+    st.markdown('<div class="page-subtitle">Coverage, electricity and affordability are published only as urban vs rural averages — so each district\'s score reflects whether it is urban or rural, weighted by real 2022 Census population. It is not yet a per-district measurement.</div>', unsafe_allow_html=True)
 
     if 'districts' in data:
         df = data['districts']
@@ -287,20 +287,38 @@ elif page == "District Explorer":
                     "From POTRAZ base station allocation", "grey"), unsafe_allow_html=True)
         
         with c2:
-            plot_df = df.sort_values('ddi', ascending=True)
-            colors = [RED if ur == 'rural' else NAVY for ur in plot_df['urban_rural']]
-            
-            fig = go.Figure(go.Bar(
-                x=plot_df['ddi'], y=plot_df['district_name'], orientation='h',
-                marker_color=colors,
-                customdata=plot_df[['population', 'urban_rural']],
-                hovertemplate="<b>%{y}</b><br>DDI: %{x}<br>Pop: %{customdata[0]:,.0f}<br>%{customdata[1]}<extra></extra>",
-            ))
-            fig.update_layout(**PLOTLY_LAYOUT, height=max(500, len(plot_df) * 16),
-                             title="All districts ranked by DDI",
-                             xaxis_title="DDI (0-100)")
+            # Honest framing: the score only takes two values (urban vs rural),
+            # because every input is a national urban/rural average. Show that
+            # comparison directly across the four pillars rather than drawing 91
+            # bars that would imply a per-district granularity we do not have.
+            u_ = df[df['urban_rural'] == 'urban']
+            r_ = df[df['urban_rural'] == 'rural']
+            pillars = [('Coverage', 'coverage_gap'), ('Adoption', 'adoption_gap'),
+                       ('Affordability', 'affordability_gap'), ('Electricity', 'electricity_gap'),
+                       ('Overall DDI', 'ddi')]
+            labels = [p[0] for p in pillars]
+            urban_vals = [round(u_[c].mean(), 1) for _, c in pillars]
+            rural_vals = [round(r_[c].mean(), 1) for _, c in pillars]
+
+            fig = go.Figure()
+            fig.add_trace(go.Bar(name="Urban districts", x=labels, y=urban_vals,
+                                 marker_color=NAVY, text=[f"{v:.1f}" for v in urban_vals],
+                                 textposition="outside"))
+            fig.add_trace(go.Bar(name="Rural districts", x=labels, y=rural_vals,
+                                 marker_color=RED, text=[f"{v:.1f}" for v in rural_vals],
+                                 textposition="outside"))
+            fig.update_layout(**PLOTLY_LAYOUT, barmode="group", height=420,
+                             title="Urban vs rural — the score is a two-level comparison",
+                             yaxis_title="Score (0-100, higher = worse)",
+                             legend=dict(orientation="h", y=-0.18))
+            fig.update_yaxes(range=[0, 110])
             st.plotly_chart(fig, use_container_width=True)
-        
+            st.caption("The district score reflects urban vs rural status, not per-district "
+                       "measurement — coverage, electricity and affordability are only available "
+                       "as urban/rural averages. A true district-by-district score would need more "
+                       "granular data we don't have yet, for example the actual number of cell "
+                       "towers in each district.")
+
         st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
         
         c1, c2, c3 = st.columns(3)

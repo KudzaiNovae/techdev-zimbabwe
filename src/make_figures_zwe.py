@@ -22,8 +22,9 @@ IN_DIR  = Path("data/processed")
 OUT_DIR = Path("outputs/figures")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-URBAN_COLOR = "#1F4E79"
-RURAL_COLOR = "#C00000"
+# Grayscale palette for black-and-white print: urban dark, rural medium.
+URBAN_COLOR = "#3a3a3a"
+RURAL_COLOR = "#8c8c8c"
 ACCENT      = "#7F7F7F"
 
 
@@ -38,8 +39,8 @@ width = 0.38
 urban_vals = coverage["pop_coverage_urban_pct"].tolist()
 rural_vals = coverage["pop_coverage_rural_pct"].tolist()
 
-ax.bar(x - width/2, urban_vals, width, label="Urban", color=URBAN_COLOR, edgecolor="white")
-ax.bar(x + width/2, rural_vals, width, label="Rural", color=RURAL_COLOR, edgecolor="white")
+ax.bar(x - width/2, urban_vals, width, label="Urban", color=URBAN_COLOR, edgecolor="black")
+ax.bar(x + width/2, rural_vals, width, label="Rural", color=RURAL_COLOR, edgecolor="black")
 
 # Value labels
 for i, (u, r) in enumerate(zip(urban_vals, rural_vals)):
@@ -50,9 +51,9 @@ for i, (u, r) in enumerate(zip(urban_vals, rural_vals)):
 lte_idx = techs.index("LTE")
 gap = urban_vals[lte_idx] - rural_vals[lte_idx]
 ax.annotate(f"  {gap:.0f}-point gap", xy=(lte_idx, rural_vals[lte_idx] + 15),
-            fontsize=11, color=RURAL_COLOR, fontweight="bold",
+            fontsize=11, color="#000000", fontweight="bold",
             xytext=(lte_idx + 0.5, 65),
-            arrowprops=dict(arrowstyle="->", color=RURAL_COLOR, lw=1.5))
+            arrowprops=dict(arrowstyle="->", color="#000000", lw=1.5))
 
 ax.set_xticks(x)
 ax.set_xticklabels(techs, fontsize=11)
@@ -87,8 +88,8 @@ rural = bs_area_no_total["rural"].tolist()
 x = np.arange(len(operators))
 width = 0.38
 
-ax.bar(x - width/2, urban, width, label="Urban", color=URBAN_COLOR, edgecolor="white")
-ax.bar(x + width/2, rural, width, label="Rural", color=RURAL_COLOR, edgecolor="white")
+ax.bar(x - width/2, urban, width, label="Urban", color=URBAN_COLOR, edgecolor="black")
+ax.bar(x + width/2, rural, width, label="Rural", color=RURAL_COLOR, edgecolor="black")
 
 for i, (u, r) in enumerate(zip(urban, rural)):
     ax.text(i - width/2, u + 80, f"{u:,}", ha="center", fontsize=10)
@@ -121,13 +122,13 @@ tech_no_total = tech[tech["technology"] != "Total"].copy()
 tech_no_total = tech_no_total.sort_values("change_pct", ascending=True)
 
 fig, ax = plt.subplots(figsize=(10, 5.5))
-colors = ["#C00000" if c < 0 else "#1F4E79" for c in tech_no_total["change_pct"]]
-# Highlight Starlink/VSAT
+colors = ["#bdbdbd" if c < 0 else "#3a3a3a" for c in tech_no_total["change_pct"]]
+# Highlight Starlink/VSAT in solid black so it stands out in B&W
 labels = tech_no_total["technology"].tolist()
-colors = ["#2E8B57" if "VSAT" in t or "Starlink" in t else c
+colors = ["#000000" if "VSAT" in t or "Starlink" in t else c
           for t, c in zip(labels, colors)]
 
-bars = ax.barh(labels, tech_no_total["change_pct"], color=colors, edgecolor="white")
+bars = ax.barh(labels, tech_no_total["change_pct"], color=colors, edgecolor="black")
 for bar, val in zip(bars, tech_no_total["change_pct"]):
     offset = 1 if val >= 0 else -1
     ha = "left" if val >= 0 else "right"

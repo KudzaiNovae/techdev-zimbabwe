@@ -28,14 +28,14 @@ IN_DIR  = Path("data/processed")
 OUT_DIR = Path("outputs/figures")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Color palette (colour-blind safe-ish)
-ZIM_COLOR  = "#C00000"   # Zimbabwe highlighted in red
-PEER_COLOR = "#4F81BD"   # Peers in muted blue
+# Grayscale palette for black-and-white print.
+ZIM_COLOR  = "#000000"   # Zimbabwe highlighted in solid black
+PEER_COLOR = "#9e9e9e"   # Peers in light grey
 PILLAR_COLORS = {
-    "coverage_gap":      "#1F4E79",
-    "adoption_gap":      "#4F81BD",
-    "affordability_gap": "#C00000",
-    "electricity_gap":   "#7F7F7F",
+    "coverage_gap":      "#1a1a1a",   # near-black
+    "adoption_gap":      "#595959",   # dark grey
+    "affordability_gap": "#8c8c8c",   # mid grey
+    "electricity_gap":   "#c4c4c4",   # light grey
 }
 PILLAR_LABELS = {
     "coverage_gap":      "Coverage gap",
@@ -56,7 +56,7 @@ long_df = pd.read_csv(long_path)
 fig, ax = plt.subplots(figsize=(9, 5))
 plot_df = df.sort_values("ddi", ascending=True)  # so highest is on top
 colors = [ZIM_COLOR if iso == "ZWE" else PEER_COLOR for iso in plot_df["country_iso3"]]
-bars = ax.barh(plot_df["country_name"], plot_df["ddi"], color=colors, edgecolor="white")
+bars = ax.barh(plot_df["country_name"], plot_df["ddi"], color=colors, edgecolor="black")
 
 for bar, val in zip(bars, plot_df["ddi"]):
     ax.text(val + 1, bar.get_y() + bar.get_height() / 2,
@@ -97,7 +97,7 @@ for i, pillar in enumerate(pillars):
         row = long_df[(long_df["country_iso3"] == iso) & (long_df["pillar"] == pillar)]
         vals.append(row["score"].iloc[0] if len(row) and pd.notna(row["score"].iloc[0]) else 0)
     ax.bar(x + (i - 1.5) * width, vals, width,
-           label=PILLAR_LABELS[pillar], color=PILLAR_COLORS[pillar], edgecolor="white")
+           label=PILLAR_LABELS[pillar], color=PILLAR_COLORS[pillar], edgecolor="black")
 
 ax.set_xticks(x)
 ax.set_xticklabels(country_names, rotation=0, fontsize=10)

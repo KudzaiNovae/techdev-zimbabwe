@@ -141,15 +141,15 @@ if 'towers_per_10k' in agg.columns and len(agg) > 0:
     axes[0].spines[['top', 'right']].set_visible(False)
 
 tech_counts = towers['radio'].value_counts()
-colors_pie = {'GSM': '#7F7F7F', 'UMTS': '#4F81BD', 'LTE': '#C00000'}
+colors_pie = {'GSM': '#BDD7EE', 'UMTS': '#1F4E79', 'LTE': '#C00000'}
 axes[1].pie(tech_counts.values, labels=[f"{t} ({TECH_MAP.get(t,t)})" for t in tech_counts.index],
-            colors=[colors_pie.get(t, '#999') for t in tech_counts.index],
+            colors=[colors_pie.get(t, '#8FAADC') for t in tech_counts.index],
             autopct='%1.0f%%', startangle=90, textprops={'fontsize': 12})
 axes[1].set_title(f'Zimbabwe towers by technology\n({len(towers):,} total)',
                   fontsize=11, fontweight='bold')
 
 fig.text(0.02, -0.02,
-         'Source: OpenCellID (MCC 648). Crowdsourced — biased toward NetOne. '
+         'Source: OpenCellID (MCC 648). Crowdsourced, biased toward NetOne. '
          'Use for relative density ranking, not absolute counts.',
          fontsize=8, color='#555555')
 fig.tight_layout()

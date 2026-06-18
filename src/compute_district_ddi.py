@@ -198,8 +198,11 @@ lines.append(f"Rural districts: {len(rural)}  DDI {rural['ddi'].min():.1f}"
              f"-{rural['ddi'].max():.1f}  ({rural['population'].sum():,} people)")
 pop = d['population'].sum()
 rural_share = rural['population'].sum() / pop * 100
-lines.append(f"Rural population share: {rural_share:.1f}% — these districts carry "
-             "the 29% LTE coverage / 51.4% rural-electricity burden.")
+lines.append(f"Population in rural-council districts: {rural_share:.1f}% (these districts carry "
+             "the 29% LTE coverage and 51.4% rural-electricity burden).")
+lines.append("Note: this is the share in rural-council districts, not the census rural population")
+lines.append("share. The 2022 Census / World Bank put the rural population at about 60%; the gap is")
+lines.append("peri-urban wards (e.g. Harare Rural) that sit inside rural-council districts.")
 lines.append("")
 lines.append("Pillars (national where not district-resolved):")
 lines.append(f"  coverage_gap     100 - LTE coverage (urban {urban_4g}, rural {rural_4g})")

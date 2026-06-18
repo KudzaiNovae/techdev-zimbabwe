@@ -154,13 +154,12 @@ if page == PAGES[0]:
              "subscription does not mean someone can actually use the internet. The real gap is about <b>43 points</b>.","blue")
     with b:
         st.markdown('<div class="shead">Where the people are</div>', unsafe_allow_html=True)
-        if 'districts' in D:
-            df = D['districts']; u=df[df.urban_rural=='urban'].population.sum(); r=df[df.urban_rural=='rural'].population.sum()
-            fig = go.Figure(go.Pie(labels=["Towns and cities","Countryside"], values=[u,r], hole=.55,
-                marker_colors=[NAVY,RED], textinfo="label+percent", sort=False))
-            fig.add_annotation(text="<b>15.2M</b><br>people", showarrow=False, font=dict(size=15,color=INK))
-            chart(styled(fig, height=340, t="Zimbabwe's population (2022 Census)", legend=False))
-        note("About <b>7 in 10</b> Zimbabweans live in the countryside, which is exactly where coverage, power "
+        # 2022 Census / World Bank urban-rural split: about 40% urban, 60% rural
+        fig = go.Figure(go.Pie(labels=["Towns and cities","Countryside"], values=[40,60], hole=.55,
+            marker_colors=[NAVY,RED], textinfo="label+percent", sort=False))
+        fig.add_annotation(text="<b>15.2M</b><br>people", showarrow=False, font=dict(size=15,color=INK))
+        chart(styled(fig, height=340, t="Where Zimbabweans live (2022 Census)", legend=False))
+        note("About <b>6 in 10</b> Zimbabweans live in the countryside, which is exactly where coverage, power "
              "and affordable data are weakest.","amber")
 
 # ---------------------------------------------------------------- SADC Comparison
@@ -201,9 +200,9 @@ elif page == PAGES[2]:
     if 'districts' in D:
         df = D['districts']; u=df[df.urban_rural=='urban']; r=df[df.urban_rural=='rural']
         c = st.columns(3)
-        with c[0]: card("Towns and cities",f"{len(u)} areas",f"{u.population.sum()/df.population.sum()*100:.0f}% of people")
-        with c[1]: card("Countryside",f"{len(r)} areas",f"{r.population.sum()/df.population.sum()*100:.0f}% of people","red")
-        with c[2]: card("Exclusion score gap","27 to 52","town against countryside","amber")
+        with c[0]: card("Urban districts",f"{len(u)}","towns and city councils")
+        with c[1]: card("Rural districts",f"{len(r)}","rural district councils","red")
+        with c[2]: card("People in rural areas","~60%","2022 Census, World Bank","amber")
 
         st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
         a,b = st.columns([1.2,1])
@@ -231,9 +230,12 @@ elif page == PAGES[2]:
             card("People (2022 Census)", f"{int(row.population):,}", f"{kind} district")
             st.write("")
             card("Has 4G signal", f"{row.pop_covered_4g_pct:.0f}%", f"Electricity: {row.electricity_access_pct:.0f}%","amber")
-        note("Why only two levels? Because the inputs are town and countryside averages. A real score for each "
-             "district on its own would need more detailed data that we do not have yet, for example the actual "
-             "number of cell towers in each district.","blue")
+        note("A note on the split: we sort whole districts by their council type, 30 urban and 61 rural. The "
+             "census counts about 6 in 10 people as rural overall, a little less than the share living in "
+             "rural-council districts, because some peri-urban areas (such as Harare Rural) sit inside those "
+             "districts. The score itself only has two levels because coverage, power and price are published as "
+             "town and countryside averages. A real per-district score would need more detailed data that we do "
+             "not have yet, for example the actual number of cell towers in each district.","blue")
 
 # ---------------------------------------------------------------- Coverage Gap
 elif page == PAGES[3]:
@@ -307,7 +309,7 @@ elif page == PAGES[5]:
         chart(styled(fig, height=370, t="Mobile towers by operator and area", yt="Number of towers"))
         c=st.columns(3)
         with c[0]: card("Towers in towns","8,423","64% of all towers")
-        with c[1]: card("Towers in the countryside","4,681","36%, for 70% of people","red")
+        with c[1]: card("Towers in the countryside","4,681","36%, for 60% of people","red")
         with c[2]: card("Biggest network","Econet","74% of mobile users")
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
     a,b=st.columns([1.1,1])

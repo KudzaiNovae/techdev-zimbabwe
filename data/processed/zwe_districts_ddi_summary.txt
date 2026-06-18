@@ -5,7 +5,10 @@ ZIMBABWE DISTRICT DIGITAL DESERT INDEX (higher = more excluded)
 Districts: 91  |  Population: 15,178,973 (2022 Census)
 Urban districts: 30  DDI 27.5-27.5  (4,445,236 people)
 Rural districts: 61  DDI 52.4-52.4  (10,733,737 people)
-Rural population share: 70.7% — these districts carry the 29% LTE coverage / 51.4% rural-electricity burden.
+Population in rural-council districts: 70.7% (these districts carry the 29% LTE coverage and 51.4% rural-electricity burden).
+Note: this is the share in rural-council districts, not the census rural population
+share. The 2022 Census / World Bank put the rural population at about 60%; the gap is
+peri-urban wards (e.g. Harare Rural) that sit inside rural-council districts.
 
 Pillars (national where not district-resolved):
   coverage_gap     100 - LTE coverage (urban 95.9, rural 29.0)

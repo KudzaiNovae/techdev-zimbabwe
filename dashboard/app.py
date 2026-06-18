@@ -473,16 +473,17 @@ elif page == "Methodology":
 
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
 
-    st.markdown("#### District refinement with OpenCellID")
-    st.write("POTRAZ publishes coverage only at the national rural/urban level. To add genuine district-level variation, we blend OpenCellID crowdsourced tower density into each district's coverage pillar. Districts with above-median tower density per capita get a smaller coverage gap, and vice versa. This moves the district DDI from 2 possible values to 17 distinct scores.")
+    st.markdown("#### District-level DDI: real Census populations, an honest two-level surface")
+    st.write("District populations come from the ZimStat 2022 Census (91 urban and rural units, 15.18 million people), computed by a dedicated geopandas-free script so every number reproduces exactly. Because POTRAZ coverage and World Bank electricity are published only at the national rural/urban level, the per-district DDI is a clean two-level surface: urban districts score 27.5, rural districts 52.4. Population-weighting those gives a national district DDI of 45.1 — consistent with the country-level 45.7.")
 
-    st.markdown('<div class="insight-box">Caveat: OpenCellID is crowdsourced with a 99% NetOne bias, so we use it for relative ranking between districts, not absolute tower counts. The capped, median-normalised adjustment is deliberately conservative (±8 points maximum).</div>', unsafe_allow_html=True)
+    st.markdown('<div class="insight-box">We tested folding OpenCellID crowdsourced tower density into the coverage pillar to add district variation, but the source is ~99% NetOne-biased and spatially noisy — it produced artefacts such as central districts appearing better covered than they are. OpenCellID is therefore reported as an independent cross-check only, not blended into the index.</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
 
     st.markdown("#### Known limitations")
     st.markdown("""
-    - **ZimStat coverage is partial.** District population projections cover 42 districts across 4 provinces; the rest use census totals with area-based apportionment.
+    - **District populations are real 2022 Census figures** for all 91 urban/rural units — no area-based apportionment.
+    - **Cross-country coverage is not strictly like-for-like.** Peer 4G coverage is each regulator's self-reported ITU figure (Malawi 88.9%, Zambia 91.2%); Zimbabwe's reflects POTRAZ reporting rural coverage honestly at 29%. Even zeroing Zimbabwe's coverage gap leaves it 4th of 6.
     - **Affordability uses national GNI**, not district income, so it understates barriers in poorer districts.
     - **No measured speed data.** Electricity access serves as a proxy for real-world network availability. A future quality pillar would use ITU QoS indicators or operator speed reports.
     - **POTRAZ coverage is operator-declared** and may overstate real-world signal.

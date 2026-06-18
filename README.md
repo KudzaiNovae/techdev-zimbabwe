@@ -174,6 +174,8 @@ population-weighted 4G coverage figure: `rural_4g × 0.6011 + urban_4g × 0.3989
 - `data/processed/ddi_country.csv` — DDI + sub-pillars per country
 - `data/processed/ddi_country_long.csv` — one row per country-pillar (for charting)
 - `data/processed/ddi_summary.txt` — human-readable ranking
+- `data/processed/ddi_sensitivity.csv` — Zimbabwe's DDI + rank under six
+  weighting schemes (robustness check)
 
 ### Step 5: Generate country-level charts (~5 seconds)
 
@@ -190,7 +192,34 @@ python src/make_figures_zwe.py
 - `zwe_internet_tech_mix.png` — Starlink +31.6% growth story
 - `itu_fixed_bb_affordability_trend.png` — 2018–2025 time series
 
+### Step 5b: Compute the district-level DDI (reproducible, ~2 seconds)
+
+```bash
+python src/compute_district_ddi.py
+```
+
+**What it does:** Computes the clean four-pillar DDI for every Zimbabwe
+district using **real 2022 Census populations**
+(`data/raw/zimstat/zwe_district_population_2022_census.csv`), POTRAZ Q4 2025
+rural/urban LTE coverage, World Bank rural/urban electricity + internet use,
+and the ITU affordability basket. This is **geopandas-free** and fully
+reproducible — it does not depend on the GADM boundary file. OpenCellID tower
+density is attached for context only (see limitations).
+
+This replaces an earlier hand-built `zwe_districts_ddi_census.csv` whose
+headline DDI used an undocumented OpenCellID adjustment and was not generated
+by any committed script.
+
+**Output:**
+- `data/processed/zwe_districts_ddi_census.csv` — district DDI + pillars
+- `data/processed/zwe_districts_ddi_summary.txt` — worst/best districts
+- `outputs/figures/district_ddi_refined.png` — province DDI bar chart
+
 ### Step 6: Download GADM boundaries (once, ~30 seconds)
+
+> **Note:** the `gadm41_ZWE.gpkg` shipped in this repo is a small STUB (placeholder
+> geometries) used only to wire up the code. You must download the real file
+> below to produce meaningful maps. The DDI numbers (Step 5b) do not need it.
 
 ```bash
 mkdir -p data/raw/geo
@@ -208,10 +237,13 @@ wget https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_ZWE_shp.zip -P data/raw
 python src/build_district_table.py
 ```
 
-**What it does:** Reads the GADM GeoPackage (ADM_ADM_2 layer = districts),
-classifies each district as urban or rural, applies POTRAZ rural/urban
-coverage figures, apportions base stations by population weight within each
-class, and computes the district-level DDI using the same four-pillar formula.
+**What it does:** Joins the district DDI from Step 5b onto GADM admin-2
+geometry so it can be drawn on a map. It aggregates the 91 census districts up
+to the GADM polygons (population-weighted DDI) via a normalised name match.
+Requires geopandas **and the real GADM file** — it does *not* compute
+population from polygon area any more (the old approach broke on the stub
+geometry), and it prints a loud warning if it detects the stub. The DDI values
+themselves come from Step 5b, so the map and the analysis always agree.
 
 **Output:**
 - `data/processed/zwe_districts_master.gpkg` — GeoPackage (geometry + indicators)
@@ -239,7 +271,8 @@ techdev-zimbabwe/
 │   ├── extract_potraz.py               ← Step 2: POTRAZ Q4 2025 table transcription
 │   ├── extract_itu.py                  ← Step 3: ITU DataHub CSV processor
 │   ├── extract_zimstat.py              ← Step 4: ZimStat 2022 Census processing
-│   ├── compute_ddi.py                  ← Step 5: DDI computation
+│   ├── compute_ddi.py                  ← Step 5: country DDI + sensitivity
+│   ├── compute_district_ddi.py         ← Step 5b: reproducible district DDI
 │   ├── make_figures.py                 ← Step 6a: SADC comparison charts
 │   ├── make_figures_zwe.py             ← Step 6b: Zimbabwe-specific charts
 │   ├── build_district_table.py         ← Step 7: district-level master table
@@ -301,16 +334,41 @@ DDI = (coverage_gap + adoption_gap + affordability_gap + electricity_gap) / 4
 
 Equal weights are used because: (a) no empirical basis exists for preferring
 one pillar over another in the Zimbabwean context; (b) equal weights are
-transparent and reproducible; (c) we tested alternative weights (coverage ×2,
-affordability ×2) and found the country ranking is robust — Zimbabwe stays
-4th out of 6 under all tested schemes.
+transparent and reproducible; (c) we tested six alternative weighting schemes
+(coverage ×2, affordability ×2, adoption ×2, drop electricity, infrastructure
+focus) and Zimbabwe's mid-pack position is robust — it stays **3rd–4th out of
+6** under every scheme (it moves to 3rd only when coverage is up-weighted or
+electricity dropped, because Zambia overtakes it). The full table is
+reproducible via `src/compute_ddi.py`, which writes `ddi_sensitivity.csv`.
 
 ### Known limitations
 
-- **District-level DDI is currently binary** (urban vs rural) because POTRAZ
-  publishes coverage at the national rural/urban level, not per district.
-  ZimStat district populations (available for 4 of 10 provinces) and
-  OpenCellID tower density provide partial district-level variance.
+- **Cross-country coverage is not strictly like-for-like.** Each country's 4G
+  coverage pillar comes from its own regulator's self-reported ITU figure
+  (Malawi 88.9%, Zambia 91.2%), whereas Zimbabwe's uses POTRAZ's rural/urban
+  population-weighted 55.7%. POTRAZ reports rural coverage honestly (29%),
+  while some peer regulators report optimistic blended national numbers, so
+  Zimbabwe's *coverage rank* is partly a measurement artefact. This does not
+  change Zimbabwe's overall position: zeroing its coverage gap entirely still
+  leaves it 4th. Coverage is the least comparable of the four pillars; the
+  adoption, affordability, and electricity pillars are on consistent bases.
+- **District-level DDI is two-level by construction** (urban vs rural) because
+  POTRAZ publishes coverage and the World Bank publishes electricity only at
+  the national rural/urban level, not per district. District *populations* are
+  real 2022 Census figures (`compute_district_ddi.py`), so population-weighted
+  aggregates are meaningful, but the per-district DDI surface itself only takes
+  two values until district-resolved coverage/electricity data exists.
+- **OpenCellID is reported for context but excluded from the index.** It is
+  ~99% NetOne-biased, and its district assignment depends on a spatial join
+  against the boundary file. An earlier draft folded it into coverage and
+  produced artefacts (e.g. Harare *Rural* appearing better-covered than Harare
+  Urban because stray towers geocoded to the city centre), so it is now kept
+  out of the DDI.
+- **The committed `data/raw/geo/gadm41_ZWE.gpkg` is a 112 KB STUB** with
+  placeholder geometries (all features ~133 bytes), suitable only for wiring up
+  the code. The DDI numbers do not depend on it. To render real choropleth
+  maps, download the genuine multi-MB GADM file (see Step 6); the build script
+  detects the stub and warns.
 - **ZimStat coverage is partial.** Population projections cover 42 districts
   across Manicaland, Mashonaland Central, East and West. The remaining 6
   provinces (Bulawayo, Harare, Masvingo, Matabeleland North/South, Midlands)
